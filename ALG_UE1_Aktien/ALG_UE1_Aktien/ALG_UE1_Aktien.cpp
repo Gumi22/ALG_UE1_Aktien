@@ -9,7 +9,6 @@
 #define hashtablesize 1999
 
 
-
 int main()
 {
 	using namespace std; //Wir wollen ja nicht immer std::cout und so tippen ^^
@@ -36,19 +35,33 @@ int main()
 		cin >> menu;
 
 		if (menu == "ADD" || menu == "1") {
-			Hashtable<int> mytable(1999);
-			for (int i = 1; i <= 1999; i++) {
+			Hashtable<string> mytable(99991);
+			string X = "asdassds dsd ss";
+			static const char alphanum[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+			for (int i = 0; i < 99991; i++) {
+				
 				try {
-					mytable.Add(i, "TERtetr");
+					for (int i = 0; i < 15; ++i) {
+						X[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+					}
+					mytable.Add(X, X);
 				}
 				catch(exception &e){
 					cout << e.what() << endl;
 				}
 			}
+			cout << mytable.FindHighestStepstonecount() << endl;
+			cout <<  mytable.FindHighestTimesJumped() << endl;
 		}
+		
 	}
 	while (menu != "8" && menu != "QUIT");
 
     return 0;
 }
+
+
 

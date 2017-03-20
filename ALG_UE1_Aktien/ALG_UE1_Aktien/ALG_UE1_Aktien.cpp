@@ -35,13 +35,13 @@ int main()
 		cin >> menu;
 
 		if (menu == "ADD" || menu == "1") {
-			Hashtable<string> mytable(99991);
+			Hashtable<string> mytable(1999);
 			string X = "asdassds dsd ss";
 			static const char alphanum[] =
 				"0123456789"
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 				"abcdefghijklmnopqrstuvwxyz";
-			for (int i = 0; i < 99991; i++) {
+			for (int i = 0; i < 2002; i++) {
 				
 				try {
 					for (int i = 0; i < 15; ++i) {

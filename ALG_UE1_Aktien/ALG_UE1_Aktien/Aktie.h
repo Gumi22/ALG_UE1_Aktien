@@ -11,7 +11,7 @@ public:
 	Aktie(const Aktie&); //Copy Constructor
 	virtual ~Aktie(); //Destructor
 	void FuegeKurseintragHinzu(std::string, float, float, float, float, float, int);
-	std::string AktuellsterKurseintrag(); //string, getrennt durch ;
+	std::string AktuellsterKurseintrag(); //string, getrennt durch;
 	std::string AlleKurseintraege(); //string getrennt durch;
 	std::string Name;
 	std::string Kuerzel;

@@ -18,7 +18,7 @@ int main()
 	//Hashtable<int or Aktie> mytable(3);
 
 	//Menu und endlosschleife
-
+	Hashtable<string>* mytable = new Hashtable<string>(1999);
 	do {
 		menu = "";
 		//Print menu
@@ -34,27 +34,40 @@ int main()
 		cout << "Bitte wählen Sie: " << endl;
 		cin >> menu;
 
+		
+		
 		if (menu == "ADD" || menu == "1") {
-			Hashtable<string> mytable(1999);
-			string X = "asdassds dsd ss";
+			string X = "asda";
 			static const char alphanum[] =
 				"0123456789"
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 				"abcdefghijklmnopqrstuvwxyz";
-			for (int i = 0; i < 2002; i++) {
+			for (int i = 0; i < 1999; i++) {
 				
 				try {
-					for (int i = 0; i < 15; ++i) {
+					for (int i = 0; i < 4; ++i) {
 						X[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
 					}
-					mytable.Add(X, X);
+					cout << "versuche: "<< X << endl;
+					mytable->Add(X, X);
 				}
 				catch(exception &e){
 					cout << e.what() << endl;
 				}
 			}
-			cout << mytable.FindHighestStepstonecount() << endl;
-			cout <<  mytable.FindHighestTimesJumped() << endl;
+		}
+		else if (menu == "SEARCH" || menu == "4") {
+			cout << "Geben sie ihren Key ein" << endl;
+			string Key = "";
+			cin >> Key;
+			try {
+				cout << mytable->Suche(Key);
+				cout << "Gefunden :D" << endl ;
+			}
+			catch (exception &e) {
+				cout << e.what() << endl;
+			}
+			
 		}
 		
 	}

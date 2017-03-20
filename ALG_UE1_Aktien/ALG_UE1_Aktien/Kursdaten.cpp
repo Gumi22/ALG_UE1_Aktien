@@ -83,7 +83,6 @@ void Kursdaten::FuegeKurseintragHinzu(std::string datum, float open, float high,
 			delete Date;
 		}
 	}
-	//AktuellsteDaten[Start] = *NeueAktie(Date, open, high, low, close, adjclose, volume);
 }
 
 const struct Aktienkurs Kursdaten::AktuellsterEintrag() {

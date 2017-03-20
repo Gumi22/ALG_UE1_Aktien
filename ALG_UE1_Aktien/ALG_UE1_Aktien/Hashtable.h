@@ -58,29 +58,6 @@ template <class Type> class Hashtable
 			delete[] Data;
 		};
 
-		//Test:
-		int FindHighestStepstonecount() {
-			int temp = 0;
-			for (int i = 0; i < TableSize; i++) {
-				if (StepstoneCount[i] > temp) {
-					temp = StepstoneCount[i];
-				}
-			}
-			return temp;
-		}
-
-		//Test:
-		int FindHighestTimesJumped() {
-			int temp = 0;
-			for (int i = 0; i < TableSize; i++) {
-				if (TimesJumped[i] > temp) {
-					temp = TimesJumped[i];
-				}
-			}
-			return temp;
-		}
-
-
 		//Hinzufügen von neuen Einträgen in die Hashtabelle. 
 		void Add(Type &newData, std::string key) {
 
@@ -99,6 +76,14 @@ template <class Type> class Hashtable
 					break; //Fertig :D
 				}
 				else { //Wenn Stelle schon besetzt war:
+					if (Key[temp] == key) {
+						//Fehlgeschlagene Versuche rückgängig machen !!!
+						for (int i = 0; i < j; i++) {
+							unsigned long deltemp = ((i % 2) == 1) ? ((Pos + (i*i)) % TableSize) : ((Pos - (i*i)) % TableSize);
+							StepstoneCount[deltemp]--;
+						}
+						throw std::overflow_error("Eintrag bereits vorhanden :C");
+					}
 					j++; //Anzahl der gebrauchten Versuche erhöhen
 					StepstoneCount[temp]++; //Speichere an der Position des mislungenen Einfügens, dass die Position zum suchen relevant bleibt
 					//	Errechne nächsten Index (nach der quadratischen Probing Methode, in der sich das Vorzeichen jedes Mal ändert)
@@ -109,15 +94,22 @@ template <class Type> class Hashtable
 			
 			//Wenn nun j >= TableSize ist, ist die Tabelle schon voll, da wir jede mögliche Position versucht haben
 			if (j >= TableSize) {
+				//Fehlgeschlagene Versuche rückgängig machen !!!
+				for (int i = 0; i < TableSize; i++) {
+					unsigned long deltemp = ((i % 2) == 1) ? ((Pos + (i*i)) % TableSize) : ((Pos - (i*i)) % TableSize);
+					StepstoneCount[deltemp]--;
+				}
+
 				throw std::overflow_error("Hashtable voll :C");
 			}
 		};
 
 		//Suche in der Hashtabelle nach dem key, wenn gefunden gib den Datensatz zurück :D
-		template <class Type> Type Search(std::string key)
+		Type Suche(std::string key)
 		{
-			
-			return Data[0];//return the right one :D
+			int index = IndexOf(key);
+
+			return Data[index];//return the right one :D
 		};
 
 		//Entfernen von Daten mit bestimmten key aus der Hashtabelle, falls vorhanden
@@ -147,5 +139,43 @@ template <class Type> class Hashtable
 			}
 
 			return hash;
+		}
+
+		//Sucht den Index eines Eintrags
+		int IndexOf(std::string key) {
+
+			int j = 0; //counter (darf nicht größer TableSize werden)
+			//Nutze die Hashfunktion um die Soll-Position des Eintrags zu bestimmen
+			unsigned long Pos = hash(key) % TableSize; //Originalposition
+			unsigned long temp = Pos; //verschobene Position bei Nicht-Fund
+			
+			//Suche so lange bis es gelingt:
+			do {
+				//Versuche den Eintrag zu finden:
+				 if(Key[temp] == key){ //Wenn die Datensätze übereinstimmen
+					return temp; //Datensatz gefunden :D
+				}
+				else{ //Wenn die Datensätze nicht übereinstimmen, aber es möglicherweise dahinter stehen könnte:
+					if (StepstoneCount[temp] != 0) {
+						//Nicht gefunden, aber weitermachen
+						j++; //Anzahl der gebrauchten Versuche erhöhen
+						//Nächste Position errechnen
+						temp = ((j % 2) == 1) ? ((Pos + (j*j)) % TableSize) : ((Pos - (j*j)) % TableSize); //Siehe https://en.wikipedia.org/wiki/Quadratic_probing#Alternating_sign
+					}
+					else {
+						//Bisher keine Übereinstimmung entdeckt :/
+						throw std::overflow_error("Eintrag nicht gefunden :C");
+						break; //Fertig, da kein Datensatz hinter diesem wartet.
+					}
+				}
+				
+			} while (j < TableSize); //Maximale Anzahl der Versuche = Größe der Hashtabelle
+
+			//Wenn nun j >= TableSize ist, haben wir unsere Suche erfolglos beendet, da wir jede mögliche Position versucht haben
+			if (j >= TableSize) {
+				throw std::overflow_error("Eintrag nicht gefunden :C");
+			}
+
+			return temp;
 		}
 };

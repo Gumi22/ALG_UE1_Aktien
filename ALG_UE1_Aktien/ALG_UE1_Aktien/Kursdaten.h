@@ -19,7 +19,7 @@ public:
 	Kursdaten(const Kursdaten&); //Copy Constructor
 	virtual ~Kursdaten();
 	void FuegeKurseintragHinzu(std::string, float, float, float, float, float, int);
-	const struct Aktienkurs AktuellsterEintrag();
+	struct Aktienkurs* AktuellsterEintrag();
 	const struct Aktienkurs* AlleKursdaten();
 
 private:

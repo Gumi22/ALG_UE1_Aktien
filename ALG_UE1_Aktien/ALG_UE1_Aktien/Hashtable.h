@@ -2,14 +2,20 @@
 
 #include <string>
 #include <stdexcept>
+#include <math.h>
+
+#include <iostream>
 
 template <class Type> class Hashtable
 {
 	public:
 		//Constructor der einen Hashtable mit einer bestimmten Größe anlegt
 		Hashtable(int size) {
-			TableSize = size;
 
+			std::cout << "Constructing Hashtable" << std::endl;
+
+			TableSize = size;
+			DataCount = 0;
 
 			Key = new std::string[size]; //Reserviere den Platz für die keys
 			TimesJumped = new int[size];//Reserviere den Platz
@@ -28,8 +34,12 @@ template <class Type> class Hashtable
 		};
 		//Copy Constructor:
 		Hashtable(const Hashtable& other) {
+
+			std::cout << "Copy Constructing Hashtable" << std::endl;
+
 			//Diese Werte kopieren
 			TableSize = other.TableSize;
+			DataCount = other.DataCount;
 
 			Key = new std::string[TableSize]; //Reserviere den Platz für die neuen keys
 			TimesJumped = new int[size]; //Reserviere den Platz
@@ -52,14 +62,20 @@ template <class Type> class Hashtable
 
 		//Destructor
 		virtual ~Hashtable<Type>() {
+
+			std::cout << "Destructing Hashtable" << std::endl;
+
 			delete[] Key;
 			delete[] TimesJumped;
 			delete[] StepstoneCount;
 			delete[] Data;
 		};
 
-		//Hinzufügen von neuen Einträgen in die Hashtabelle. 
-		void Add(Type &newData, std::string key) {
+		//Hinzufügen von neuen Einträgen in die Hashtabelle. Gibt true bei Erfolg und false bei Misserfolg zurück
+		bool Add(Type &newData, std::string key) {
+			if (1 - Fullness() < 0.001) { //Gib false zurück, wenn Tabelle schon voll
+				return false;
+			}
 
 			int j = 0; //counter (darf nicht größer TableSize werden)
 
@@ -73,21 +89,22 @@ template <class Type> class Hashtable
 					Key[temp] = key;
 					Data[temp] = newData; //Füge Daten ein
 					TimesJumped[temp] = j; //Speichere die Anzahl der Sprünge.
+					DataCount++;
 					break; //Fertig :D
 				}
 				else { //Wenn Stelle schon besetzt war:
 					if (Key[temp] == key) {
 						//Fehlgeschlagene Versuche rückgängig machen !!!
 						for (int i = 0; i < j; i++) {
-							unsigned long deltemp = ((i % 2) == 1) ? ((Pos + (i*i)) % TableSize) : ((Pos - (i*i)) % TableSize);
+							unsigned long deltemp = QuadraticProbing(Pos, i); //((i % 2) == 1) ? ((Pos + (i*i)) % TableSize) : ((Pos - (i*i)) % TableSize);
 							StepstoneCount[deltemp]--;
 						}
-						throw std::overflow_error("Eintrag bereits vorhanden :C");
+						return false;
 					}
 					j++; //Anzahl der gebrauchten Versuche erhöhen
 					StepstoneCount[temp]++; //Speichere an der Position des mislungenen Einfügens, dass die Position zum suchen relevant bleibt
 					//	Errechne nächsten Index (nach der quadratischen Probing Methode, in der sich das Vorzeichen jedes Mal ändert)
-					temp = ((j % 2) == 1) ? ((Pos + (j*j)) % TableSize) : ((Pos - (j*j)) % TableSize); //Siehe https://en.wikipedia.org/wiki/Quadratic_probing#Alternating_sign
+					temp = QuadraticProbing(Pos, j);//((j % 2) == 1) ? ((Pos + (j*j)) % TableSize) : ((Pos - (j*j)) % TableSize); //Siehe https://en.wikipedia.org/wiki/Quadratic_probing#Alternating_sign
 				}
 			}
 			while (j < TableSize); //Maximale Anzahl der Versuche = Größe der Hashtabelle
@@ -99,13 +116,15 @@ template <class Type> class Hashtable
 					unsigned long deltemp = ((i % 2) == 1) ? ((Pos + (i*i)) % TableSize) : ((Pos - (i*i)) % TableSize);
 					StepstoneCount[deltemp]--;
 				}
-
-				throw std::overflow_error("Hashtable voll :C");
+				return false;
 			}
+
+			return true;
+
 		};
 
 		//Suche in der Hashtabelle nach dem key, wenn gefunden gib den Datensatz zurück :D
-		Type Suche(std::string key)
+		Type& Suche(std::string key)
 		{
 			int index = IndexOf(key);
 
@@ -113,18 +132,27 @@ template <class Type> class Hashtable
 		};
 
 		//Entfernen von Daten mit bestimmten key aus der Hashtabelle, falls vorhanden
-		void Remove(std::string key) {
-
+		bool Remove(std::string key) {
+			return true;
 		};
 
+		//Gibt die Größe des Hashtables zurück
 		int Size() {
 			return TableSize;
+		}
+
+		//Gibt den Befüllungsgrad als Faktor (0-1) zurück.
+		double Fullness() {
+			double befuellungsgrad = 0;
+			befuellungsgrad = ((double)DataCount/(double)TableSize);
+			return befuellungsgrad;
 		}
 
 	private:
 		Type* Data;
 		std::string* Key;
 		int TableSize;
+		int DataCount;
 		int* TimesJumped; //Gibt an wie oft ein Eintrag gesprungen ist bevor er an seinen endgültigen Speicherplatz gelangt ist.
 		int* StepstoneCount; //Gibt an wie oft andere Einträge wegen diesem Eintrag nicht an der position gespeichert werden konnten. 
 
@@ -160,7 +188,7 @@ template <class Type> class Hashtable
 						//Nicht gefunden, aber weitermachen
 						j++; //Anzahl der gebrauchten Versuche erhöhen
 						//Nächste Position errechnen
-						temp = ((j % 2) == 1) ? ((Pos + (j*j)) % TableSize) : ((Pos - (j*j)) % TableSize); //Siehe https://en.wikipedia.org/wiki/Quadratic_probing#Alternating_sign
+						temp = QuadraticProbing(Pos, j); // -> ((j % 2) == 1) ? ((Pos + (j*j)) % TableSize) : ((Pos - (j*j)) % TableSize); //Siehe https://en.wikipedia.org/wiki/Quadratic_probing#Alternating_sign
 					}
 					else {
 						//Bisher keine Übereinstimmung entdeckt :/
@@ -176,6 +204,12 @@ template <class Type> class Hashtable
 				throw std::overflow_error("Eintrag nicht gefunden :C");
 			}
 
-			return temp;
+			return (int)temp;
+		}
+
+		//Gibt die nächste Arrayposition zurück Pos=Originalposition, Count = Anzahl des Einfüge/Ausleseversuchs.
+		unsigned long QuadraticProbing(unsigned long Pos, int Count) {
+			int j = ceil((double)Count / 2); //macht aus 1 2 3 4 ... -> 1 1 2 2 ... weil wir ja +1 -1 +4 -4 +9 -9 ... wollen
+			return ((Count % 2) == 1) ? ((Pos + (j*j)) % TableSize) : (((Pos - (j*j)) % TableSize) < 0) ? ((Pos - (j*j)) % TableSize) + TableSize : ((Pos - (j*j)) % TableSize); //Ändert das Vorzeichen jedes Mal und schaut drauf, dass negative ergebnisse korrekt Modulo gerechnet werden.
 		}
 };

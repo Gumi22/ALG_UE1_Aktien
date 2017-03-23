@@ -2,9 +2,15 @@
 #include "Kursdaten.h"
 #include "Datum.h"
 
+#include <iostream>
+
+
 //Constructor
 Kursdaten::Kursdaten(int size)
 {
+
+	std::cout << "Constructing Kursdaten" << std::endl;
+
 	AktuellsteDaten = new Aktienkurs[size];
 	Size = size;
 	Start = 0;
@@ -13,6 +19,9 @@ Kursdaten::Kursdaten(int size)
 
 //Copy-Constructor:
 Kursdaten::Kursdaten(const Kursdaten& other) {
+
+	std::cout << "Constructing Kursdaten" << std::endl;
+
 	Size = other.Size; //Kopiere die Member
 	Start = other.Start;
 	End = other.End;
@@ -30,6 +39,8 @@ Kursdaten::Kursdaten(const Kursdaten& other) {
 //Destructor
 Kursdaten::~Kursdaten()
 {
+	std::cout << "Destructing Kursdaten" << std::endl;
+
 	//ToDo: Alle Sachen innerhalb von Aktiellste Daten löschen, also auch das Datum und das Struct :D
 	for (int i = 0; i < Size; i++) {
 		delete AktuellsteDaten[i].Datum;
@@ -85,8 +96,8 @@ void Kursdaten::FuegeKurseintragHinzu(std::string datum, float open, float high,
 	}
 }
 
-const struct Aktienkurs Kursdaten::AktuellsterEintrag() {
-	return AktuellsteDaten[Start];
+struct Aktienkurs* Kursdaten::AktuellsterEintrag() {
+	return &AktuellsteDaten[Start];
 }
 
 const struct Aktienkurs* Kursdaten::AlleKursdaten() {

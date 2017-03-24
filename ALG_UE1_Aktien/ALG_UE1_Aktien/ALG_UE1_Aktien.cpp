@@ -5,8 +5,9 @@
 #include <iostream>
 #include <string>
 #include "Hashtable.h"
+#include "Aktie.h"
 
-#include <time.h> 
+#include <time.h> //später weg
 
 #define hashtablesize 1999
 
@@ -20,8 +21,10 @@ int main()
 	//How to create Hashtable:
 	//Hashtable<int or Aktie> mytable(3);
 
-	//Menu und endlosschleife
+	
 	Hashtable<string>* mytable = new Hashtable<string>(hashtablesize);
+	Hashtable<Aktie*>* Aktienahshtable = new Hashtable<Aktie*>(hashtablesize); //Hashtable mit Pointer auf Aktien :D
+	//Menu und endlosschleife
 	do {
 		menu = "";
 		//Print menu

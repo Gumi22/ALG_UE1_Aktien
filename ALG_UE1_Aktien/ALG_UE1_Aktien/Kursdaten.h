@@ -9,7 +9,6 @@ struct Aktienkurs {
 	float Close; //Endkurs
 	float AdjClose; //Berichtigter Kurs
 	int Volume; //Volumen
-	struct number *next; //Nächster Kurs
 };
 
 class Kursdaten
@@ -18,9 +17,10 @@ public:
 	Kursdaten(int); //Constructor
 	Kursdaten(const Kursdaten&); //Copy Constructor
 	virtual ~Kursdaten();
-	void FuegeKurseintragHinzu(std::string, float, float, float, float, float, int);
+	bool NeuerEintrag(std::string, float, float, float, float, float, int);
 	struct Aktienkurs* AktuellsterEintrag();
-	const struct Aktienkurs* AlleKursdaten();
+	struct Aktienkurs* AlleKursdaten();
+	int KursCount();
 
 private:
 	int Size, Start, End; //Größe des Ringbuffers, Aktuellster-,  und Letzter Eintrag.

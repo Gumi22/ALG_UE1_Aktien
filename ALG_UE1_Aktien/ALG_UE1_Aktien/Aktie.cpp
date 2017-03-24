@@ -2,9 +2,17 @@
 #include "Aktie.h"
 #include "Datum.h"
 #include <string>
+#include <sstream>
 
-#include <iostream>
+#include <iostream> //später weg
 
+//Standard Constructor
+//Aktie::Aktie()
+//{
+//	Kurse = new Kursdaten(MaxKursdaten);
+//}
+
+//Constructor
 Aktie::Aktie(std::string name, std::string kuerzel, std::string wertpapiernummer)
 {
 	std::cout << "Constructing aktie" << std::endl;
@@ -15,6 +23,7 @@ Aktie::Aktie(std::string name, std::string kuerzel, std::string wertpapiernummer
 	Kurse = new Kursdaten(MaxKursdaten);
 }
 
+//Copy-Constructor
 Aktie::Aktie(const Aktie& other) {
 
 	std::cout << "Copy-Constructing aktie" << std::endl;
@@ -25,6 +34,7 @@ Aktie::Aktie(const Aktie& other) {
 	Kursdaten* Kurse(other.Kurse); //Copy Construktor aufrufen
 }
 
+//Assignment operator
 Aktie & Aktie :: operator = (const Aktie& that) {
 
 	std::cout << "aktie = aktie" << std::endl;
@@ -36,26 +46,34 @@ Aktie & Aktie :: operator = (const Aktie& that) {
 	return *this;
 }
 
-
+//Destructor
 Aktie::~Aktie()
 {
 	std::cout << "Destructing aktie" << std::endl;
-	//TODO: Make this!!!!!
+	delete Kurse;
 }
 
-void Aktie::FuegeKurseintragHinzu(std::string datum, float open, float high, float low, float close, float adjclose, int volume) {
-	int test;
-	//TODO: Make this!!!!!
+
+bool Aktie::FuegeKurseintragHinzu(std::string datum, float open, float high, float low, float close, float adjclose, int volume) {
+	//Einfach Daten weitergeben
+	return Kurse->NeuerEintrag(datum, open, high, low, close, adjclose, volume);
 }
 
 std::string Aktie::AktuellsterKurseintrag() {
 	//string, getrennt durch;
-	//TODO: Make this!!!!!
-	return "";
+	Aktienkurs* temp = Kurse->AktuellsterEintrag();
+	std::stringstream ss;
+	//Schreibe einen 
+	ss << temp->Datum->getDatum() << ";" << temp->Open << ";" << temp->High << ";" << temp->Low << ";" << temp->Close << ";" << temp->AdjClose << ";" << temp->Volume << ";";
+	return ss.str();
 }
 
 std::string Aktie::AlleKurseintraege() {
 	//string, getrennt durch;
-	//TODO: Make this!!!!!
-	return "";
+	std::stringstream ss;
+	Aktienkurs* temp = Kurse->AlleKursdaten();
+	for (int i = 0; i < Kurse->KursCount(); i++) {
+		ss << temp[i].Datum->getDatum() << ";" << temp[i].Open << ";" << temp[i].High << ";" << temp[i].Low << ";" << temp[i].Close << ";" << temp[i].AdjClose << ";" << temp[i].Volume << ";";
+	}
+	return ss.str();
 }

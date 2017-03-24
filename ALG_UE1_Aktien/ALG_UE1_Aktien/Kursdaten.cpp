@@ -2,7 +2,7 @@
 #include "Kursdaten.h"
 #include "Datum.h"
 
-#include <iostream>
+#include <iostream> //später weg
 
 
 //Constructor
@@ -40,16 +40,16 @@ Kursdaten::Kursdaten(const Kursdaten& other) {
 Kursdaten::~Kursdaten()
 {
 	std::cout << "Destructing Kursdaten" << std::endl;
-
-	//ToDo: Alle Sachen innerhalb von Aktiellste Daten löschen, also auch das Datum und das Struct :D
+	//Löschen aller Datumsklassen im Struct
 	for (int i = 0; i < Size; i++) {
 		delete AktuellsteDaten[i].Datum;
 	}
+	//Löschen des Arrays selber
 	delete[] AktuellsteDaten; 
 }
 
 //Neuen Kurseintrag in die Aktie einfügen, falls er aktuell ist :)
-void Kursdaten::FuegeKurseintragHinzu(std::string datum, float open, float high, float low, float close, float adjclose, int volume) {
+bool Kursdaten::NeuerEintrag(std::string datum, float open, float high, float low, float close, float adjclose, int volume) {
 	Datum* Date = new Datum(datum); //Erstelle ein Datum mit dem die aktuellen Daten verglichen werden können
 
 	if (!(AktuellsteDaten[End].Datum->istAktuellerAls(*Date))) //Ist die neue Aktie aktueller als zumindest die letzte gespeicherte Aktie?
@@ -64,6 +64,7 @@ void Kursdaten::FuegeKurseintragHinzu(std::string datum, float open, float high,
 			if(Start == End) {
 				End = IndexPosition(true, End);
 			}
+			return true;
 		}
 		else {
 			//Iterier durch, fügs ins entsprechende ein und tausche den rest
@@ -81,7 +82,9 @@ void Kursdaten::FuegeKurseintragHinzu(std::string datum, float open, float high,
 			}
 			//Füge das neue Element an seinem Platz ein.
 			AktuellsteDaten[Platz] = newer;
+			return true;
 		}
+		return false;
 	}
 	else {
 		if (!(IndexPosition(true, Start) == End)) {
@@ -96,18 +99,17 @@ void Kursdaten::FuegeKurseintragHinzu(std::string datum, float open, float high,
 	}
 }
 
+//Gibt den aktuellsten Kurseintrag zurück
 struct Aktienkurs* Kursdaten::AktuellsterEintrag() {
 	return &AktuellsteDaten[Start];
 }
 
-const struct Aktienkurs* Kursdaten::AlleKursdaten() {
-	Aktienkurs* temp = new Aktienkurs[Size];
-	for (int i = 0; i < Size; i++) {
-		temp[0] = Aktienkurs(AktuellsteDaten[((i + Start) % Size)]); //Rufe Copy-Costructor auf um Daten zu kopieren.
-	}
-	return temp;
+//Gibt alle Kursdaten zurück
+struct Aktienkurs* Kursdaten::AlleKursdaten() {
+	return AktuellsteDaten;
 }
 
+//Erstellt neuen Kurseintrag
 struct Aktienkurs* Kursdaten::NeueAktie(Datum* datum, float open, float high, float low, float close, float adjclose, int volume) {
 	Aktienkurs* temp = new Aktienkurs(); //Lege neuen Aktienkurs an und befülle die Werte.
 	temp->Datum = datum;
@@ -123,10 +125,15 @@ struct Aktienkurs* Kursdaten::NeueAktie(Datum* datum, float open, float high, fl
 //Gibt den Index der Angeforderten Position zurück. Vor = true: Index vor Pos, Vor = false: Index nach Pos
 int Kursdaten::IndexPosition(bool Vor, int Pos) {
 	if (Vor) {
-		return ((Pos - 1) % Size);
+		return (((Pos - 1) % Size) < 0) ? ((Pos - 1) % Size) + Size : ((Pos - 1) % Size);
 	}
 	else {
 		return ((Pos + 1) % Size);
 	}
 	return 0;
+}
+
+//Gibt die Anzahl an gespeicherten Kursen zurück, bei leerer Liste, wird 1 zurückgegeben
+int  Kursdaten::KursCount() {
+	return (End >= Start) ? End - Start + 1 : (Size - (Start - End)) + 1;
 }

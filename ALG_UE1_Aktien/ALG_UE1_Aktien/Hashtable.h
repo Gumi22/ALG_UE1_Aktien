@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <math.h>
 
-#include <iostream>
+#include <iostream> //später weg
 
 template <class Type> class Hashtable
 {
@@ -32,6 +32,7 @@ template <class Type> class Hashtable
 				StepstoneCount[i] = 0; //Initialisiere die Stepstones mit 0
 			}
 		};
+
 		//Copy Constructor:
 		Hashtable(const Hashtable& other) {
 
@@ -126,13 +127,23 @@ template <class Type> class Hashtable
 		//Suche in der Hashtabelle nach dem key, wenn gefunden gib den Datensatz zurück :D
 		Type& Suche(std::string key)
 		{
-			int index = IndexOf(key);
+			int index = IndexOf(key); //Always the right one, if not search would have thrown exception
 
 			return Data[index];//return the right one :D
 		};
 
 		//Entfernen von Daten mit bestimmten key aus der Hashtabelle, falls vorhanden
 		bool Remove(std::string key) {
+			int x = IndexOf(key); //Hol dir die Position falls vorhanden
+
+			//Zurücksetzen der Stepstonecounts die das Objekt beim Einfügen hinterlassen hat
+			for (int i = 1; i <= TimesJumped[x]; i++) {
+				unsigned long deltemp = QuadraticProbing(Pos, i); //((i % 2) == 1) ? ((Pos + (i*i)) % TableSize) : ((Pos - (i*i)) % TableSize);
+				StepstoneCount[deltemp]--;
+			}
+			TimesJumped[x] = 0; //reset this field
+			delete Data[x]; //Delete Data
+			Key[x] = ""; //Remove Key
 			return true;
 		};
 

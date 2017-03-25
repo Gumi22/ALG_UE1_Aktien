@@ -8,8 +8,10 @@
 #include "Aktie.h"
 
 #include <time.h> //später weg
+#include <math.h> //später weg
 
-#define hashtablesize 1999
+#define hashtablesize 99991
+#define hashtablesize2 1999
 
 
 int main()
@@ -20,7 +22,6 @@ int main()
 
 	//How to create Hashtable:
 	//Hashtable<int or Aktie> mytable(3);
-
 	
 	Hashtable<string>* mytable = new Hashtable<string>(hashtablesize);
 	Hashtable<Aktie*>* Aktienahshtable = new Hashtable<Aktie*>(hashtablesize); //Hashtable mit Pointer auf Aktien :D
@@ -42,7 +43,7 @@ int main()
 
 		
 		if (menu == "0") { //TESTFUNKTION :D
-			string X = "dddd";
+			string X = "dddddds";
 			static const char alphanum[] =
 				"0123456789"
 				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -50,26 +51,50 @@ int main()
 
 			string* Y = new string[hashtablesize];
 			for (int i = 0; i < hashtablesize; i++) {
-
-				try {
-					for (int i = 0; i < 4; ++i) {
-						X[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
-					}
-					Y[i] = X;
+				for (int i = 0; i < 7; ++i) {
+					X[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
 				}
-				catch (exception &e) {
-					//cout << e.what() << endl;
-				}
+				Y[i] = X;
+			}
+			for (int i = 0; i < hashtablesize; i++) {
+				//cout << Y[i] << endl;
 			}
 
 			double time1 = 0.0, tstart;      // time measurment variables
 			tstart = clock();
-			for (int i = 0; i < hashtablesize; i++) {
-				mytable->Add(Y[i], Y[i]);
+			for (int i = 0; i < (hashtablesize); i++) {
+				try {
+					if (!mytable->Add(Y[i], Y[i])) {
+						cout << "Konnte nicht eingefügt werden: " << Y[i] << endl;
+					}
+				}
+				catch (exception e) {
+					cout << e.what() << ": " << Y[i] << endl;
+				}
+			}
+			for (int i = 0; i < (hashtablesize); i++) {
+				try {
+					mytable->Remove(Y[i]);
+				}
+				catch (exception e) {
+					//cout << e.what() << ": " << Y[i] << endl;
+				}
 			}
 			time1 += clock() - tstart;     // end
 			time1 = time1 / CLOCKS_PER_SEC;  // rescale to seconds
 			cout << "  time = " << time1 << " sec." << endl;
+			cout << "Fullness: " << mytable->Fullness() << endl;
+			cout << "StepstoneCount max: " << mytable->test1() << endl;
+			cout << "StepstoneCount min: " << mytable->test12() << endl;
+			cout << "TimesJumped: " << mytable->test2() << endl;
+			//int * test3 = mytable->test3(); //-> Probing funktioniert!!!
+			//cout << "Probing: " << endl;
+			//for (int i = 0; i < hashtablesize; i++) {
+			//	for (int j = 0; j < hashtablesize; j++) {
+			//		cout << test3[(i+1) * (j+1) -1] << endl;
+			//	}
+			//	cout << endl;
+			//}
 		}
 
 

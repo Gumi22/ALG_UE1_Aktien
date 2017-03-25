@@ -5,10 +5,50 @@
 #include <math.h>
 
 #include <iostream> //später weg
+#include <type_traits> //später weg 
 
 template <class Type> class Hashtable
 {
 	public:
+		//Test
+		int test1() {
+			int max = 0;
+			for (int i = 0; i < TableSize; i++) {
+				if (StepstoneCount[i] > max) {
+					max = StepstoneCount[i];
+				}
+			}
+			return max;
+		}
+		int test12() {
+			int min = 0;
+			for (int i = 0; i < TableSize; i++) {
+				if (StepstoneCount[i] < min) {
+					min = StepstoneCount[i];
+				}
+			}
+			return min;
+		}
+		int test2() {
+			int max = 0;
+			for (int i = 0; i < TableSize; i++) {
+				if (TimesJumped[i] > max) {
+					max = TimesJumped[i];
+				}
+			}
+			return max;
+		}
+		int* test3() {
+			int* Test = new int[TableSize*TableSize];
+			for (int i = 0; i < TableSize; i++) {
+				for (int j = 0; j < TableSize; j++) {
+					Test[((i + 1) * (j+1)) - 1] = QuadraticProbing(i, j);
+				}
+			}
+			return Test;
+		}
+
+
 		//Constructor der einen Hashtable mit einer bestimmten Größe anlegt
 		Hashtable(int size) {
 
@@ -74,77 +114,96 @@ template <class Type> class Hashtable
 
 		//Hinzufügen von neuen Einträgen in die Hashtabelle. Gibt true bei Erfolg und false bei Misserfolg zurück
 		bool Add(Type &newData, std::string key) {
-			if (1 - Fullness() < 0.001) { //Gib false zurück, wenn Tabelle schon voll
-				return false;
+			bool returnvalue = true;
+			if (Fullness() == 1) { //Gib false zurück, wenn Tabelle schon voll
+				returnvalue = false;
 			}
 
 			int j = 0; //counter (darf nicht größer TableSize werden)
 
 			//Nutze die Hashfunktion um die Position des Eintrags zu bestimmen
-			unsigned long Pos = hash(key) % TableSize; //Originalposition
-			unsigned long temp = Pos; //verschobene Position bei Data-Hit
+			int Pos = hash(key) % TableSize; //Originalposition
+			int temp = Pos; //verschobene Position bei Data-Hit
 			//Versuche so lange einzufügen bis es gelingt:
-			do{
+			do //Maximale Anzahl der Versuche = Größe der Hashtabelle
+			{
 				//Versuche die Daten einzufügen
 				if (Key[temp] == "") { //Wenn das Array an der Stelle leer ist
 					Key[temp] = key;
 					Data[temp] = newData; //Füge Daten ein
 					TimesJumped[temp] = j; //Speichere die Anzahl der Sprünge.
 					DataCount++;
+					//std::cout << key << " = " << temp << ", J = " << j << std::endl;
 					break; //Fertig :D
 				}
 				else { //Wenn Stelle schon besetzt war:
 					if (Key[temp] == key) {
 						//Fehlgeschlagene Versuche rückgängig machen !!!
+						int deltemp = 0;
 						for (int i = 0; i < j; i++) {
-							unsigned long deltemp = QuadraticProbing(Pos, i); //((i % 2) == 1) ? ((Pos + (i*i)) % TableSize) : ((Pos - (i*i)) % TableSize);
+							deltemp = QuadraticProbing(Pos, i);
 							StepstoneCount[deltemp]--;
 						}
-						return false;
+						returnvalue = false;
 					}
-					j++; //Anzahl der gebrauchten Versuche erhöhen
-					StepstoneCount[temp]++; //Speichere an der Position des mislungenen Einfügens, dass die Position zum suchen relevant bleibt
-					//	Errechne nächsten Index (nach der quadratischen Probing Methode, in der sich das Vorzeichen jedes Mal ändert)
-					temp = QuadraticProbing(Pos, j);//((j % 2) == 1) ? ((Pos + (j*j)) % TableSize) : ((Pos - (j*j)) % TableSize); //Siehe https://en.wikipedia.org/wiki/Quadratic_probing#Alternating_sign
+					else {
+						//std::cout << temp << "-> ";
+						j++; //Anzahl der gebrauchten Versuche erhöhen
+						StepstoneCount[temp]++; //Speichere an der Position des mislungenen Einfügens, dass die Position zum suchen relevant bleibt
+												//	Errechne nächsten Index (nach der quadratischen Probing Methode, in der sich das Vorzeichen jedes Mal ändert)
+						temp = QuadraticProbing(Pos, j);//Siehe https://en.wikipedia.org/wiki/Quadratic_probing#Alternating_sign
+					}
 				}
-			}
-			while (j < TableSize); //Maximale Anzahl der Versuche = Größe der Hashtabelle
+			} while (j < TableSize && returnvalue);
 			
-			//Wenn nun j >= TableSize ist, ist die Tabelle schon voll, da wir jede mögliche Position versucht haben
+			//Wenn nun j > TableSize+1 ist, ist die Tabelle schon voll, da wir jede mögliche Position versucht haben
 			if (j >= TableSize) {
 				//Fehlgeschlagene Versuche rückgängig machen !!!
+				int deltemp = 0;
 				for (int i = 0; i < TableSize; i++) {
-					unsigned long deltemp = ((i % 2) == 1) ? ((Pos + (i*i)) % TableSize) : ((Pos - (i*i)) % TableSize);
+					deltemp = QuadraticProbing(Pos, i);
 					StepstoneCount[deltemp]--;
 				}
-				return false;
+				returnvalue = false;
 			}
-
-			return true;
-
+			return returnvalue;
 		};
 
 		//Suche in der Hashtabelle nach dem key, wenn gefunden gib den Datensatz zurück :D
 		Type& Suche(std::string key)
 		{
-			int index = IndexOf(key); //Always the right one, if not search would have thrown exception
-
+			int index = IndexOf(key); //Can be -1
+			if (index < 0) { //wenn -1 dann ist etwas schiefgelaufen :(
+				index = 0;
+				throw std::overflow_error("Eintrag nicht gefunden :C");
+			}
 			return Data[index];//return the right one :D
 		};
 
 		//Entfernen von Daten mit bestimmten key aus der Hashtabelle, falls vorhanden
-		bool Remove(std::string key) {
+		Type& Remove(std::string key) {
 			int x = IndexOf(key); //Hol dir die Position falls vorhanden
-
+			if (x < 0) { //wenn -1 dann ist etwas schiefgelaufen :(
+				x = 0;
+				throw std::overflow_error("Eintrag nicht gefunden :C");
+			}
 			//Zurücksetzen der Stepstonecounts die das Objekt beim Einfügen hinterlassen hat
-			for (int i = 1; i <= TimesJumped[x]; i++) {
-				unsigned long deltemp = QuadraticProbing(Pos, i); //((i % 2) == 1) ? ((Pos + (i*i)) % TableSize) : ((Pos - (i*i)) % TableSize);
-				StepstoneCount[deltemp]--;
+			if (TimesJumped[x] > 0) {
+				int originalindex = hash(key);
+				int deltemp = 0;
+				for (int i = 0; i < TimesJumped[x]; i++) {
+					deltemp = QuadraticProbing(originalindex, i);
+					//std::cout << "Von " << StepstoneCount[deltemp];
+					if (StepstoneCount[deltemp] > 0) {
+						StepstoneCount[deltemp]--;
+					}
+					//std::cout << " auf " << StepstoneCount[deltemp] << " count: " << i << std::endl;
+				}
 			}
 			TimesJumped[x] = 0; //reset this field
-			delete Data[x]; //Delete Data
 			Key[x] = ""; //Remove Key
-			return true;
+			DataCount--; //Nun ist ein Datensatz weniger vorhanden :D
+			return Data[x]; //Den Datensatz als Referenz zurückgeben, damit er dann evtl wo anders gelöscht werden kann.
 		};
 
 		//Gibt die Größe des Hashtables zurück
@@ -168,7 +227,7 @@ template <class Type> class Hashtable
 		int* StepstoneCount; //Gibt an wie oft andere Einträge wegen diesem Eintrag nicht an der position gespeichert werden konnten. 
 
 		//hashed den Key und erzeugt eine "pseudozufällige Zahl"
-		unsigned long hash(std::string key) {
+		int hash(std::string key) {
 			unsigned long hash = 5381;
 			int i=0;
 			int c;
@@ -176,8 +235,8 @@ template <class Type> class Hashtable
 				i++;
 				hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 			}
-
-			return hash;
+			int hashint = hash & INT_MAX;
+			return hashint;
 		}
 
 		//Sucht den Index eines Eintrags
@@ -185,17 +244,18 @@ template <class Type> class Hashtable
 
 			int j = 0; //counter (darf nicht größer TableSize werden)
 			//Nutze die Hashfunktion um die Soll-Position des Eintrags zu bestimmen
-			unsigned long Pos = hash(key) % TableSize; //Originalposition
-			unsigned long temp = Pos; //verschobene Position bei Nicht-Fund
+			int Pos = hash(key) % TableSize; //Originalposition
+			int temp = Pos; //verschobene Position bei Nicht-Fund
 			
 			//Suche so lange bis es gelingt:
 			do {
 				//Versuche den Eintrag zu finden:
 				 if(Key[temp] == key){ //Wenn die Datensätze übereinstimmen
+					//std::cout << key << " = " << temp << std::endl;
 					return temp; //Datensatz gefunden :D
 				}
 				else{ //Wenn die Datensätze nicht übereinstimmen, aber es möglicherweise dahinter stehen könnte:
-					if (StepstoneCount[temp] != 0) {
+					if (StepstoneCount[temp] > 0) {
 						//Nicht gefunden, aber weitermachen
 						j++; //Anzahl der gebrauchten Versuche erhöhen
 						//Nächste Position errechnen
@@ -203,24 +263,44 @@ template <class Type> class Hashtable
 					}
 					else {
 						//Bisher keine Übereinstimmung entdeckt :/
-						throw std::overflow_error("Eintrag nicht gefunden :C");
-						break; //Fertig, da kein Datensatz hinter diesem wartet.
+						//throw std::overflow_error("Eintrag nicht gefunden :C");
+						//std::cout << key << " = " << -1 << std::endl;
+						return -1;
+						//break; //Fertig, da kein Datensatz hinter diesem wartet.
 					}
 				}
 				
-			} while (j < TableSize); //Maximale Anzahl der Versuche = Größe der Hashtabelle
+			} while (j <= TableSize); //Maximale Anzahl der Versuche = Größe der Hashtabelle
 
 			//Wenn nun j >= TableSize ist, haben wir unsere Suche erfolglos beendet, da wir jede mögliche Position versucht haben
-			if (j >= TableSize) {
-				throw std::overflow_error("Eintrag nicht gefunden :C");
+			if (j > TableSize+1) {
+				//std::cout << key << " = overflow " << std::endl;
+				return -1;
+				//throw std::overflow_error("Eintrag nicht gefunden :C");
 			}
+			
+			
 
 			return (int)temp;
 		}
 
 		//Gibt die nächste Arrayposition zurück Pos=Originalposition, Count = Anzahl des Einfüge/Ausleseversuchs.
-		unsigned long QuadraticProbing(unsigned long Pos, int Count) {
-			int j = ceil((double)Count / 2); //macht aus 1 2 3 4 ... -> 1 1 2 2 ... weil wir ja +1 -1 +4 -4 +9 -9 ... wollen
-			return ((Count % 2) == 1) ? ((Pos + (j*j)) % TableSize) : (((Pos - (j*j)) % TableSize) < 0) ? ((Pos - (j*j)) % TableSize) + TableSize : ((Pos - (j*j)) % TableSize); //Ändert das Vorzeichen jedes Mal und schaut drauf, dass negative ergebnisse korrekt Modulo gerechnet werden.
+		int QuadraticProbing(int Pos, int Count) {
+			int j = ceil((double)Count / (double)2); //macht aus 1 2 3 4 ... -> 1 1 2 2 ... weil wir ja +1 -1 +4 -4 +9 -9 ... wollen
+			int newPos;
+
+			if (Count % 2 == 1) { //Vorzeichen !!!
+				newPos = ((Pos + (j*j)) % TableSize);
+			}
+			else {
+				if(Pos < (j*j)){
+					newPos = (Pos - (j*j)) % TableSize + TableSize;
+				}
+				else {
+					newPos = ((Pos - (j*j)) % TableSize);
+				}
+			}
+			return newPos;
 		}
+
 };

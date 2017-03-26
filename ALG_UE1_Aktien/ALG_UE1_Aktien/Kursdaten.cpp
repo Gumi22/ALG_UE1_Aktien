@@ -15,6 +15,7 @@ Kursdaten::Kursdaten(int size)
 	Size = size;
 	Start = 0;
 	End = 0;
+	Count = 0;
 }
 
 //Copy-Constructor:
@@ -25,6 +26,7 @@ Kursdaten::Kursdaten(const Kursdaten& other) {
 	Size = other.Size; //Kopiere die Member
 	Start = other.Start;
 	End = other.End;
+	Count = other.Count;
 
 	//Kopiere auch die Daten auf die der Pointer zeigt:
 	Datum* temp; //Datum kopieren ist Kritisch, da der Member ein Pointer ist, wir aber die Daten kopieren wollen
@@ -41,8 +43,8 @@ Kursdaten::~Kursdaten()
 {
 	std::cout << "Destructing Kursdaten" << std::endl;
 	//Löschen aller Datumsklassen im Struct
-	for (int i = 0; i < Size; i++) {
-		delete AktuellsteDaten[i].Datum;
+	for (int i = 0; i < Count; i++) {
+		delete AktuellsteDaten[(Start+i)%Size].Datum;
 	}
 	//Löschen des Arrays selber
 	delete[] AktuellsteDaten; 
@@ -63,7 +65,9 @@ bool Kursdaten::NeuerEintrag(std::string datum, float open, float high, float lo
 			//Wenn Start nun dort hinzeigt wo Ende war, verschiebe das Ende auch eines nach vor.
 			if(Start == End) {
 				End = IndexPosition(true, End);
+				Count--;
 			}
+			Count++;
 			return true;
 		}
 		else {
@@ -84,19 +88,22 @@ bool Kursdaten::NeuerEintrag(std::string datum, float open, float high, float lo
 			AktuellsteDaten[Platz] = newer;
 			return true;
 		}
-		return false;
 	}
 	else {
-		if (!(IndexPosition(true, Start) == End)) {
+		if (Count < Size) { //!(IndexPosition(true, Start) == End)
 			//Ist das neue Datum älter als das Älteste und ist die Tabelle noch ned voll? -> hinten anhängen, End ändern
 			End = IndexPosition(false, End);
 			AktuellsteDaten[End] = *NeueAktie(Date, open, high, low, close, adjclose, volume);
+			Count++;
+			return true;
 		}
 		else {
 			//Tabelle voll und Datum nicht aktuell? -> Lösche Datum und füg den Dateneintrag nicht ein ^^
 			delete Date;
+			return false;
 		}
 	}
+	return false;
 }
 
 //Gibt den aktuellsten Kurseintrag zurück
@@ -135,5 +142,5 @@ int Kursdaten::IndexPosition(bool Vor, int Pos) {
 
 //Gibt die Anzahl an gespeicherten Kursen zurück, bei leerer Liste, wird 1 zurückgegeben
 int  Kursdaten::KursCount() {
-	return (End >= Start) ? End - Start + 1 : (Size - (Start - End)) + 1;
+	return Count;//(End >= Start) ? End - Start + 1 : (Size - (Start - End)) + 1;
 }

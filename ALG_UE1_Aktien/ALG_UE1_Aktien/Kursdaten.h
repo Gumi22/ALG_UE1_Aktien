@@ -23,7 +23,7 @@ public:
 	int KursCount();
 
 private:
-	int Size, Start, End; //Größe des Ringbuffers, Aktuellster-,  und Letzter Eintrag.
+	int Size, Start, End, Count; //Größe des Ringbuffers, Aktuellster-,  und Letzter Eintrag.
 	Aktienkurs* AktuellsteDaten; //Ringbuffer der Kursdaten
 
 	struct Aktienkurs* NeueAktie(Datum*, float, float, float, float, float, int);

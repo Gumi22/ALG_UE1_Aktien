@@ -2,16 +2,14 @@
 // Erstellt das Menu und fuehrt die ausgewaehlte Funktion aus, solange nicht beendet wird.
 
 #include "stdafx.h"
-#include <iostream>
-#include <string>
+#include <iostream> //I-O-Stream
+#include <fstream> //Filestream
+#include <string> //strings
 #include "Hashtable.h"
 #include "Aktie.h"
 
-#include <time.h> //später weg
-#include <math.h> //später weg
 
-#define hashtablesize 99991
-#define hashtablesize2 1999
+#define hashtablesize 1999
 
 
 int main()
@@ -23,14 +21,14 @@ int main()
 	//How to create Hashtable:
 	//Hashtable<int or Aktie> mytable(3);
 	
-	Hashtable<string>* mytable = new Hashtable<string>(hashtablesize);
-	Hashtable<Aktie*>* Aktienahshtable = new Hashtable<Aktie*>(hashtablesize); //Hashtable mit Pointer auf Aktien :D
+	Hashtable<Aktie*>* Namen = new Hashtable<Aktie*>(hashtablesize); //Hashtable mit dem Namen als Key & Pointer auf Aktien :D
+	Hashtable<Aktie*>* Kuerzel = new Hashtable<Aktie*>(hashtablesize); //Hashtable mit dem Kürzel als Key & Pointer auf Aktien :D
 	//Menu und endlosschleife
 	do {
 		menu = "";
 		//Print menu
 		cout << "Hauptmenu:" << endl;
-		cout << "1 - ADD: Aktienname Aktienkuerzel [Wertpapiernummer]Eine Aktie mit Namen und Kuerzel wird hinzugefuegt." << endl;
+		cout << "1 - ADD: Aktienname Aktienkuerzel Wertpapiernummer: Eine Aktie mit Namen und Kuerzel wird hinzugefuegt." << endl;
 		cout << "2 - DEL [Aktienname|Aktienkuerzel]: Aktie wird geloescht." << endl;
 		cout << "3 - IMPORT Dateiname: Kurswerte fuer eine Aktie werden aus einer csv Datei importiert." << endl;
 		cout << "4 - SEARCH [Aktienname|Aktienkuerzel]: Programm gibt den aktuellsten Kurseintrag der gesuchten Aktie aus." << endl;
@@ -42,72 +40,86 @@ int main()
 		cin >> menu;
 
 		
-		if (menu == "0") { //TESTFUNKTION :D
-			string X = "dddddds";
-			static const char alphanum[] =
-				"0123456789"
-				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				"abcdefghijklmnopqrstuvwxyz";
-
-			string* Y = new string[hashtablesize];
-			for (int i = 0; i < hashtablesize; i++) {
-				for (int i = 0; i < 7; ++i) {
-					X[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
-				}
-				Y[i] = X;
-			}
-			for (int i = 0; i < hashtablesize; i++) {
-				//cout << Y[i] << endl;
-			}
-
-			double time1 = 0.0, tstart;      // time measurment variables
-			tstart = clock();
-			for (int i = 0; i < (hashtablesize); i++) {
-				try {
-					if (!mytable->Add(Y[i], Y[i])) {
-						cout << "Konnte nicht eingefügt werden: " << Y[i] << endl;
-					}
-				}
-				catch (exception e) {
-					cout << e.what() << ": " << Y[i] << endl;
-				}
-			}
-			for (int i = 0; i < (hashtablesize); i++) {
-				try {
-					mytable->Remove(Y[i]);
-				}
-				catch (exception e) {
-					//cout << e.what() << ": " << Y[i] << endl;
-				}
-			}
-			time1 += clock() - tstart;     // end
-			time1 = time1 / CLOCKS_PER_SEC;  // rescale to seconds
-			cout << "  time = " << time1 << " sec." << endl;
-			cout << "Fullness: " << mytable->Fullness() << endl;
-			cout << "StepstoneCount max: " << mytable->test1() << endl;
-			cout << "StepstoneCount min: " << mytable->test12() << endl;
-			cout << "TimesJumped: " << mytable->test2() << endl;
-			//int * test3 = mytable->test3(); //-> Probing funktioniert!!!
-			//cout << "Probing: " << endl;
-			//for (int i = 0; i < hashtablesize; i++) {
-			//	for (int j = 0; j < hashtablesize; j++) {
-			//		cout << test3[(i+1) * (j+1) -1] << endl;
-			//	}
-			//	cout << endl;
-			//}
-		}
-
-
-
 
 		if (menu == "ADD" || menu == "1") {
 			AenderungenVorhanden = true;
-
-			
+			string n, k, wpn;
+			cin >> n;
+			cin >> k;
+			cin >> wpn;
+			Aktie* neueAktie = new Aktie(n, k, wpn);
+			//Füge Verweise zur Aktie hinzu:
+			if (Namen->Add(neueAktie, n)) {
+				if (Kuerzel->Add(neueAktie, k)) {
+					cout << "Hinzufuegen der Aktie war erfolgreich" << endl;
+				}
+				else {
+					cout << "Hinzufuegen der Aktie gescheitert, versuchen Sie es erneut. Speicher zu " << Kuerzel->Fullness() * 100 << "% voll" << endl;
+					try {
+						Namen->Remove(n);//Nameneintrag löschen
+					}
+					catch (exception &e) {
+						cout << e.what() << endl;
+					}
+					delete neueAktie; //löschen, falls hinzufügen nicht geklappt hat
+				}
+			}
+			else {
+				cout << "Hinzufuegen der Aktie gescheitert, versuchen Sie es erneut. Speicher zu " << Namen->Fullness()*100 << "% voll" << endl;
+				delete neueAktie; //löschen, falls hinzufügen nicht geklappt hat
+			}
 		}
 		else if (menu == "DEL" || menu == "2") {
 			AenderungenVorhanden = true;
-
+			string in;
+			cin >> in; //input einlesen: Kann Name oder Kürzel sein
+			try {
+				Aktie* na = Namen->Remove(in); //Versuche den Input als Namen zu interpretieren
+				try {
+					Aktie* ku = Kuerzel->Remove(na->GetKuerzel()); //Versuche das Kürzel der Aktie in der anderen Liste zu löschen
+					if (na == ku) { //Sind die Pointer ehh dieselben?
+						delete na; //Dann lösche die Aktie
+						cout << "Loeschen erfolgreich." << endl;
+					}
+					else {
+						Namen->Add(na, na->GetName()); //Wieder einfügen
+						Kuerzel->Add(ku, ku->GetKuerzel()); //Wieder einfügen
+						cout << "Loeschen nicht erfolgreich." << endl;
+					}
+				}
+				catch (exception &e) {
+					Namen->Add(na, na->GetName()); //Wieder einfügen
+					cout << "Loeschen nicht erfolgreich." << endl;
+					cout << e.what() << endl;
+				}
+			}
+			catch (exception &e) {
+				try {
+					Aktie* ku = Kuerzel->Remove(in); //Versuche den Input als Kürzel zu interpretieren
+					try {
+						Aktie* na = Namen->Remove(ku->GetName()); //Versuche den Namen der Aktie in der anderen Liste zu löschen
+						if (na == ku) { //Sind die Pointer ehh dieselben?
+							delete na; //Dann lösche die Aktie
+							cout << "Loeschen erfolgreich." << endl;
+						}
+						else {
+							Namen->Add(na, na->GetName()); //Wieder einfügen
+							Kuerzel->Add(ku, ku->GetKuerzel()); //Wieder einfügen
+							cout << "Loeschen nicht erfolgreich." << endl;
+						}
+					}
+					catch (exception &e) {
+						Kuerzel->Add(ku, ku->GetKuerzel()); //Wieder einfügen
+						cout << "Loeschen nicht erfolgreich." << endl;
+						cout << e.what() << endl;
+					}
+				}
+				catch (exception &e) {
+					cout << "Loeschen nicht erfolgreich." << endl;
+					cout << e.what() << endl;
+				}
+				//cout << e.what() << endl;
+			}
 
 		}
 		else if (menu == "IMPORT" || menu == "3") {
@@ -116,15 +128,23 @@ int main()
 
 		}
 		else if (menu == "SEARCH" || menu == "4") {
-			cout << "Geben sie ihren Key ein" << endl;
 			string Key = "";
 			cin >> Key;
+			Aktie * Gesucht;
 			try {
-				cout << mytable->Suche(Key);
-				cout << "Gefunden :D" << endl ;
+				Gesucht = Namen->Suche(Key);
+				cout << "Name: " << Gesucht->GetName() << endl << "Kuerzel: " << Gesucht->GetKuerzel() << endl << "Wertpapiernummer: " << Gesucht->GetWPN() << endl;
+				cout << "Aktuellser Kurseintrag:" << Gesucht->AktuellsterKurseintrag() << endl;
 			}
 			catch (exception &e) {
-				cout << e.what() << endl;
+				try {
+					Gesucht = Kuerzel->Suche(Key);
+					cout << "Name: " << Gesucht->GetName() << endl << "Kuerzel: " << Gesucht->GetKuerzel() << endl << "Wertpapiernummer: " << Gesucht->GetWPN() << endl;
+					cout << "Aktuellser Kurseintrag:" << Gesucht->AktuellsterKurseintrag() << endl;
+				}
+				catch (exception &e) {
+					cout << e.what() << endl;
+				}
 			}
 			
 		}
@@ -156,9 +176,8 @@ int main()
 				return 0;
 			}
 		}
-		
 	}
-	while (menu != "8" && menu != "QUIT");
+	while (true); //menu != "8" && menu != "QUIT"
 
     return 0;
 }

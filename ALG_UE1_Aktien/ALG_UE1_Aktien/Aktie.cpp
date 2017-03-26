@@ -63,8 +63,9 @@ std::string Aktie::AktuellsterKurseintrag() {
 	//string, getrennt durch;
 	Aktienkurs* temp = Kurse->AktuellsterEintrag();
 	std::stringstream ss;
-	//Schreibe einen 
-	ss << temp->Datum->getDatum() << ";" << temp->Open << ";" << temp->High << ";" << temp->Low << ";" << temp->Close << ";" << temp->AdjClose << ";" << temp->Volume << ";";
+	if (Kurse->KursCount() > 0) {
+		ss << temp->Datum->getDatum() << ";" << temp->Open << ";" << temp->High << ";" << temp->Low << ";" << temp->Close << ";" << temp->AdjClose << ";" << temp->Volume << ";";
+	}
 	return ss.str();
 }
 
@@ -75,5 +76,16 @@ std::string Aktie::AlleKurseintraege() {
 	for (int i = 0; i < Kurse->KursCount(); i++) {
 		ss << temp[i].Datum->getDatum() << ";" << temp[i].Open << ";" << temp[i].High << ";" << temp[i].Low << ";" << temp[i].Close << ";" << temp[i].AdjClose << ";" << temp[i].Volume << ";";
 	}
+	
 	return ss.str();
+}
+
+const std::string Aktie::GetName() {
+	return Name;
+}
+const std::string Aktie::GetKuerzel() {
+	return Kuerzel;
+}
+const std::string Aktie::GetWPN() {
+	return Wertpapiernummer;
 }

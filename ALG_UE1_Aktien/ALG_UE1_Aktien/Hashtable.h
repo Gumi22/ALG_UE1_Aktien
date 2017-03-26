@@ -10,44 +10,6 @@
 template <class Type> class Hashtable
 {
 	public:
-		//Test
-		int test1() {
-			int max = 0;
-			for (int i = 0; i < TableSize; i++) {
-				if (StepstoneCount[i] > max) {
-					max = StepstoneCount[i];
-				}
-			}
-			return max;
-		}
-		int test12() {
-			int min = 0;
-			for (int i = 0; i < TableSize; i++) {
-				if (StepstoneCount[i] < min) {
-					min = StepstoneCount[i];
-				}
-			}
-			return min;
-		}
-		int test2() {
-			int max = 0;
-			for (int i = 0; i < TableSize; i++) {
-				if (TimesJumped[i] > max) {
-					max = TimesJumped[i];
-				}
-			}
-			return max;
-		}
-		int* test3() {
-			int* Test = new int[TableSize*TableSize];
-			for (int i = 0; i < TableSize; i++) {
-				for (int j = 0; j < TableSize; j++) {
-					Test[((i + 1) * (j+1)) - 1] = QuadraticProbing(i, j);
-				}
-			}
-			return Test;
-		}
-
 
 		//Constructor der einen Hashtable mit einer bestimmten Größe anlegt
 		Hashtable(int size) {

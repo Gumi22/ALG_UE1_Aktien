@@ -15,7 +15,9 @@ public:
 	bool FuegeKurseintragHinzu(std::string, float, float, float, float, float, int);
 	std::string AktuellsterKurseintrag(); //string, getrennt durch;
 	std::string AlleKurseintraege(); //string getrennt durch;
-	
+	const std::string GetName();
+	const std::string GetKuerzel();
+	const std::string GetWPN();
 
 private: 
 	const int MaxKursdaten = 30;

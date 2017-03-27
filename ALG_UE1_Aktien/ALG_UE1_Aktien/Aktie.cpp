@@ -72,11 +72,12 @@ std::string Aktie::AktuellsterKurseintrag() {
 std::string Aktie::AlleKurseintraege() {
 	//string, getrennt durch;
 	std::stringstream ss;
-	Aktienkurs* temp = Kurse->AlleKursdaten();
-	for (int i = 0; i < Kurse->KursCount(); i++) {
-		ss << temp[i].Datum->getDatum() << ";" << temp[i].Open << ";" << temp[i].High << ";" << temp[i].Low << ";" << temp[i].Close << ";" << temp[i].AdjClose << ";" << temp[i].Volume << ";";
+	if (Kurse->KursCount() > 0) {
+		Aktienkurs* temp = Kurse->AlleKursdaten();
+		for (int i = 0; i < Kurse->KursCount(); i++) {
+			ss << temp[i].Datum->getDatum() << ";" << temp[i].Open << ";" << temp[i].High << ";" << temp[i].Low << ";" << temp[i].Close << ";" << temp[i].AdjClose << ";" << temp[i].Volume << ";";
+		}
 	}
-	
 	return ss.str();
 }
 

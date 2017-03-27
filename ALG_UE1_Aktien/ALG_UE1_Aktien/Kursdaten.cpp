@@ -53,57 +53,63 @@ Kursdaten::~Kursdaten()
 //Neuen Kurseintrag in die Aktie einfügen, falls er aktuell ist :)
 bool Kursdaten::NeuerEintrag(std::string datum, float open, float high, float low, float close, float adjclose, int volume) {
 	Datum* Date = new Datum(datum); //Erstelle ein Datum mit dem die aktuellen Daten verglichen werden können
-
-	if (!(AktuellsteDaten[End].Datum->istAktuellerAls(*Date))) //Ist die neue Aktie aktueller als zumindest die letzte gespeicherte Aktie?
-	{
-		if(!(AktuellsteDaten[Start].Datum->istAktuellerAls(*Date))) //Ist das neue Datum aktueller als das alte aktuellste? 
+	if (Count > 0) { //Wenn bereits Einträge vorhanden:
+		if (!(AktuellsteDaten[End].Datum->istAktuellerAls(*Date))) //Ist die neue Aktie aktueller als zumindest die letzte gespeicherte Aktie?
 		{
-			//Wenn ja, vorne anhängen
-			AktuellsteDaten[IndexPosition(true, Start)] = *NeueAktie(Date, open, high, low, close, adjclose, volume);
-			//Start vorverschieben
-			Start = IndexPosition(true, Start);
-			//Wenn Start nun dort hinzeigt wo Ende war, verschiebe das Ende auch eines nach vor.
-			if(Start == End) {
-				End = IndexPosition(true, End);
-				Count--;
+			if (!(AktuellsteDaten[Start].Datum->istAktuellerAls(*Date))) //Ist das neue Datum aktueller als das alte aktuellste? 
+			{
+				//Wenn ja, vorne anhängen
+				AktuellsteDaten[IndexPosition(true, Start)] = *NeueAktie(Date, open, high, low, close, adjclose, volume);
+				//Start vorverschieben
+				Start = IndexPosition(true, Start);
+				//Wenn Start nun dort hinzeigt wo Ende war, verschiebe das Ende auch eines nach vor.
+				if (Start == End) {
+					End = IndexPosition(true, End);
+					Count--;
+				}
+				Count++;
+				return true;
 			}
-			Count++;
-			return true;
+			else {
+				//Iterier durch, fügs ins entsprechende ein und tausche den rest
+				int Platz = Start;
+				while (AktuellsteDaten[Platz].Datum->istAktuellerAls(*Date)) {
+					Platz = IndexPosition(false, Platz);
+				}
+				//Erstelle ein neues Element
+				Aktienkurs newer = *NeueAktie(Date, open, high, low, close, adjclose, volume);
+
+				//Tausche von hinten nach vorne das vorherige Element bis zum"Platz"
+				for (int i = End; i != Platz; i = IndexPosition(true, i)) {
+					//Tauschen :D
+					AktuellsteDaten[i] = Aktienkurs(AktuellsteDaten[IndexPosition(true, i)]);
+				}
+				//Füge das neue Element an seinem Platz ein.
+				AktuellsteDaten[Platz] = newer;
+				return true;
+			}
 		}
 		else {
-			//Iterier durch, fügs ins entsprechende ein und tausche den rest
-			int Platz = Start;
-			while (AktuellsteDaten[Platz].Datum->istAktuellerAls(*Date)) {
-				Platz = IndexPosition(false, Platz);
+			if (Count < Size) { //!(IndexPosition(true, Start) == End)
+				//Ist das neue Datum älter als das Älteste und ist die Tabelle noch ned voll? -> hinten anhängen, End ändern
+				End = IndexPosition(false, End);
+				AktuellsteDaten[End] = *NeueAktie(Date, open, high, low, close, adjclose, volume);
+				Count++;
+				return true;
 			}
-			//Erstelle ein neues Element
-			Aktienkurs newer = *NeueAktie(Date, open, high, low, close, adjclose, volume);
-			
-			//Tausche von hinten nach vorne das vorherige Element bis zum"Platz"
-			for (int i = End; i != Platz; i = IndexPosition(true, i)) {
-				//Tauschen :D
-				AktuellsteDaten[i] = Aktienkurs(AktuellsteDaten[IndexPosition(true, i)]);
+			else {
+				//Tabelle voll und Datum nicht aktuell? -> Lösche Datum und füg den Dateneintrag nicht ein ^^
+				delete Date;
+				return false;
 			}
-			//Füge das neue Element an seinem Platz ein.
-			AktuellsteDaten[Platz] = newer;
-			return true;
 		}
+		return false;
 	}
-	else {
-		if (Count < Size) { //!(IndexPosition(true, Start) == End)
-			//Ist das neue Datum älter als das Älteste und ist die Tabelle noch ned voll? -> hinten anhängen, End ändern
-			End = IndexPosition(false, End);
-			AktuellsteDaten[End] = *NeueAktie(Date, open, high, low, close, adjclose, volume);
-			Count++;
-			return true;
-		}
-		else {
-			//Tabelle voll und Datum nicht aktuell? -> Lösche Datum und füg den Dateneintrag nicht ein ^^
-			delete Date;
-			return false;
-		}
+	else { //Wenn noch kein Eintrag vorhanden:
+		Count++;
+		AktuellsteDaten[End] = *NeueAktie(Date, open, high, low, close, adjclose, volume);
+		return true;
 	}
-	return false;
 }
 
 //Gibt den aktuellsten Kurseintrag zurück

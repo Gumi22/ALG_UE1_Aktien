@@ -75,7 +75,7 @@ std::string Aktie::AlleKurseintraege() {
 	if (Kurse->KursCount() > 0) {
 		Aktienkurs* temp = Kurse->AlleKursdaten();
 		for (int i = 0; i < Kurse->KursCount(); i++) {
-			ss << temp[i].Datum->getDatum() << ";" << temp[i].Open << ";" << temp[i].High << ";" << temp[i].Low << ";" << temp[i].Close << ";" << temp[i].AdjClose << ";" << temp[i].Volume << ";";
+			ss << temp[i].Datum->getDatum() << ";" << temp[i].Open << ";" << temp[i].High << ";" << temp[i].Low << ";" << temp[i].Close << ";" << temp[i].AdjClose << ";" << temp[i].Volume << '\n';
 		}
 	}
 	return ss.str();

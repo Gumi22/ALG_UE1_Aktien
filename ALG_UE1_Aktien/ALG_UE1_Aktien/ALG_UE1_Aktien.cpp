@@ -108,15 +108,13 @@ int main()
 					getline(strstr, AdjClose);
 					//cout << Date << ',' << Open << ',' << High << ','  << Low << ',' << Close << ',' << Volume << ',' << AdjClose << endl;
 					//Konvertiere die Werte in die richtigen Datenformate und füge sie als Kurseintrag zur Aktie hinzu
-					float open, high, low, close, adjClose;
-					int volume;
-					open = stof(Open, nullptr);
-					high = stof(High, nullptr);
-					low = stof(Low, nullptr);
-					close = stof(Close, nullptr);
-					adjClose = stof(AdjClose, nullptr);
-					volume = stoi(Volume, nullptr, 10);
-					Ziel->FuegeKurseintragHinzu(Date, open, high, low, close, adjClose, volume);
+					Ziel->FuegeKurseintragHinzu(Date, 
+						stof(Open, nullptr),
+						stof(High, nullptr),
+						stof(Low, nullptr),
+						stof(Close, nullptr),
+						stof(AdjClose, nullptr),
+						stoi(Volume, nullptr, 10));
 				}
 				//cout << Ziel->AlleKurseintraege() << endl;
 				cout << "Daten wurden eingelesen." << endl;
@@ -149,6 +147,7 @@ int main()
 		else if (menu == "PLOT" || menu == "5") {
 
 			//Ausgabe der Aktiendaten
+			cout << Namen->Suche("t")->AlleKurseintraege() << endl;
 
 		}
 		else if (menu == "SAVE" || menu == "6") {

@@ -16,7 +16,7 @@ class Kursdaten
 public:
 	Kursdaten(int); //Constructor
 	Kursdaten(const Kursdaten&); //Copy Constructor
-	virtual ~Kursdaten();
+	virtual ~Kursdaten(); //Destructor
 	bool NeuerEintrag(std::string, float, float, float, float, float, int);
 	struct Aktienkurs* AktuellsterEintrag();
 	struct Aktienkurs* AlleKursdaten();

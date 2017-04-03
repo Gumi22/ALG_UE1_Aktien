@@ -81,13 +81,19 @@ template <class Type> class Hashtable
 			start4 = std::clock();
 			for (int i = 0; i < AnzahlDerTests; i++) {
 				Add(Dummy, keys2[i]);
+				if (i % 3000 == 0) {
+					std::cout << "30 Laenge insert Nr. "<< i <<": " << (std::clock() - start4) / (double)CLOCKS_PER_SEC << "Sekunden \n";
+				}
 			}
 			duration = (std::clock() - start4) / (double)CLOCKS_PER_SEC;
 			std::cout << "30 Laenge insert: " << duration << "Sekunden \n";
 			start4 = std::clock();
 			for (int i = 0; i < AnzahlDerTests; i++) {
 				try{
-				Remove(keys2[i]);
+					Remove(keys2[i]);
+					if (i % 3000 == 0) {
+						std::cout << "30 Laenge delete Nr. " << i << ": " << (std::clock() - start4) / (double)CLOCKS_PER_SEC << "Sekunden \n";
+					}
 				}
 				catch (std::exception) {
 					//nothing
@@ -335,10 +341,10 @@ template <class Type> class Hashtable
 
 		//Gibt die nächste Arrayposition zurück Pos=Originalposition, Count = Anzahl des Einfüge/Ausleseversuchs.
 		int QuadraticProbing(int Pos, int Count) {
-			int j = ceil((double)Count / (double)2); //macht aus 1 2 3 4 ... -> 1 1 2 2 ... weil wir ja +1 -1 +4 -4 +9 -9 ... wollen
+			int j = ceil((double)Count / (double)2);//macht aus 1 2 3 4 ... -> 1 1 2 2 ... weil wir ja +1 -1 +4 -4 +9 -9 ... wollen
 			int newPos;
 
-			if (Count % 2 == 1) { //Vorzeichen !!!
+			if (Count % 2 == 1) {//Vorzeichen !!!
 				newPos = ((Pos + (j*j)) % TableSize);
 			}
 			else {

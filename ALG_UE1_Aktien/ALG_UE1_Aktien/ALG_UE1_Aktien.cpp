@@ -15,6 +15,8 @@
 bool Add(Hashtable<Aktie*>*, Hashtable<Aktie*>*, std::string, std::string, std::string);
 bool Del(Hashtable<Aktie*>*, Hashtable<Aktie*>*, std::string);
 void PlotAll(Aktie *);
+void Load(std::string, Hashtable<Aktie*>*, Hashtable<Aktie*>*);
+
 
 int main()
 {
@@ -202,6 +204,13 @@ int main()
 		}
 		else if (menu == "LOAD" || menu == "7") {
 			AenderungenVorhanden = true;
+			
+			string data_name = "";
+
+			std::cin >> data_name;
+
+			Load(data_name, Namen, Kuerzel);
+			
 
 			//Lade hashtable export
 
@@ -407,6 +416,88 @@ void PlotAll(Aktie * MeineAktie)
 		}
 		std::cout << std::endl;
 	}
+}
+
+void Load(std::string name, Hashtable<Aktie*>* hash_name, Hashtable<Aktie*>* hash_kuerzel)
+{
+	using namespace std;
+
+	
+
+	ifstream input(name);
+	string line = "";
+
+	getline(input, line);
+
+	string first_line = line;
+
+	int count = stoi(line);
+
+	for (int i = 0; i < count; i++)
+	{
+		string Name;
+		string Kuerzel;
+		string WPN;
+		string figure;
+
+
+		getline(input, Name, ' ');
+		getline(input, Kuerzel, ' ');
+		getline(input, WPN, ' ');
+		getline(input, figure, '\n');
+
+		Aktie* newAktie = new Aktie(Name, Kuerzel, WPN);
+
+		int data_count = 0;
+		int number = stoi(figure);
+
+		data_count = stoi(figure);
+
+		hash_name->Add(newAktie, Name);
+
+		hash_kuerzel->Add(newAktie, Kuerzel);
+
+		for (int j = 0; j < number; j++)
+		{
+			string aktien_line;
+			getline(input, aktien_line);
+
+			stringstream strstr(aktien_line); //Mach aus der Zeile einen eigenen Stream
+
+			string Date, Open, High, Low, Close, Volume, AdjClose;
+
+			//Lies die Werte aus der Zeile aus
+			getline(strstr, Date, ';');
+			getline(strstr, Open, ';');
+			getline(strstr, High, ';');
+			getline(strstr, Low, ';');
+			getline(strstr, Close, ';');
+			getline(strstr, Volume, ';');
+			getline(strstr, AdjClose);
+
+			//cout << Date << ',' << Open << ',' << High << ','  << Low << ',' << Close << ',' << Volume << ',' << AdjClose << endl;
+			//Konvertiere die Werte in die richtigen Datenformate und füge sie als Kurseintrag zur Aktie hinzu
+
+			newAktie->FuegeKurseintragHinzu(Date,
+				stof(Open, nullptr),
+				stof(High, nullptr),
+				stof(Low, nullptr),
+				stof(Close, nullptr),
+				stof(AdjClose, nullptr),
+				stoi(Volume, nullptr, 10));
+		}
+	}
+
+
+	
+
+
+
+
+
+
+
+
 }
 
 

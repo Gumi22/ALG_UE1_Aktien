@@ -273,6 +273,24 @@ template <class Type> class Hashtable
 			return befuellungsgrad;
 		}
 
+		double GetDataCount() {
+			return DataCount;
+		}
+
+		Type* GetAllData(){
+			//Neues Array 
+			Type* myData = new Type[DataCount];
+			int x = 0;
+			//Für jede Aktie die im Table ist -> Schreibe sie ins Array. 
+			for (int i = 0; i < TableSize; i++) {
+				if (Key[i] != "") {
+					myData[x] = Data[i];
+					x++;
+				}
+			}
+			return myData;
+		}
+
 	private:
 		Type* Data;
 		std::string* Key;

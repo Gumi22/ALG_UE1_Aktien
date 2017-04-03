@@ -2,6 +2,8 @@
 
 #include <string>
 #include "Kursdaten.h"
+#include <fstream> //Filestream
+#include <sstream> //Stringstream
 
 
 class Aktie
@@ -18,6 +20,7 @@ public:
 	const std::string GetName();
 	const std::string GetKuerzel();
 	const std::string GetWPN();
+	void WriteDataToFile(std::string);
 
 private: 
 	const int MaxKursdaten = 30;

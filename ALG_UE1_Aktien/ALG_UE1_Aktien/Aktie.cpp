@@ -3,6 +3,8 @@
 #include "Datum.h"
 #include <string>
 #include <sstream>
+#include <fstream> //Filestream
+#include <sstream> //Stringstream
 
 #include <iostream> //später weg
 
@@ -89,4 +91,13 @@ const std::string Aktie::GetKuerzel() {
 }
 const std::string Aktie::GetWPN() {
 	return Wertpapiernummer;
+}
+
+void Aktie::WriteDataToFile(std::string fileName) {
+	std::fstream file; //Filestream
+
+	file.open(fileName, std::fstream::in | std::fstream::out | std::fstream::app); //Öffne im schreibmodus in dem nur hinten Angeschrieben wird
+	file << Name << " " << Kuerzel << " " << Wertpapiernummer << " " << Kurse->KursCount() << std::endl; //Schreibe Infos über die Aktie
+	file << AlleKurseintraege(); //Schreibe die Kursdaten
+	file.close();
 }

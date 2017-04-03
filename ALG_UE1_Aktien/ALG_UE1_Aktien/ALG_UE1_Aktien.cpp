@@ -178,8 +178,26 @@ int main()
 		}
 		else if (menu == "SAVE" || menu == "6") {
 			AenderungenVorhanden = false;
-
 			//speichern des zustandes des gesamten Hashtables (Serialisierung)
+			string Dateiname;
+			cin >> Dateiname; //Lies Dateiname ein
+			fstream file; 
+			
+			file.open(Dateiname, fstream::in | fstream::out | fstream::trunc); // Öffne Filestream
+			//Schreib Überschrift und Anzahl der Aktien rein:
+			file << Namen->GetDataCount() << endl;
+			file.close();
+
+			Aktie** Data;
+			Data = Namen->GetAllData(); //Hol die Pointer auf alle Aktien;
+
+			//Für jede Aktie rufe die WriteDataToFile Funktion der Aktie auf
+			for (int i = 0; i < Namen->GetDataCount(); i++) {
+				Data[i]->WriteDataToFile(Dateiname);
+			}
+
+			cout << "Hashtable erfolgreich gespeichert" << endl;
+			
 
 		}
 		else if (menu == "LOAD" || menu == "7") {

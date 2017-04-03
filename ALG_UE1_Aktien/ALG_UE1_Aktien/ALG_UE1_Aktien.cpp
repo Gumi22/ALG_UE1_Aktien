@@ -6,6 +6,7 @@
 #include <fstream> //Filestream
 #include <sstream> //Stringstream
 #include <string> //strings
+#include <math.h>//Mathematics (so magic) --> just for rounding doubles ;)
 #include "Hashtable.h"
 #include "Aktie.h"
 
@@ -13,7 +14,7 @@
 #define hashtablesize 1999
 bool Add(Hashtable<Aktie*>*, Hashtable<Aktie*>*, std::string, std::string, std::string);
 bool Del(Hashtable<Aktie*>*, Hashtable<Aktie*>*, std::string);
-void PlotAll(std::string, std::string, std::string);
+void PlotAll(Aktie *);
 
 int main()
 {
@@ -152,6 +153,25 @@ int main()
 		else if (menu == "PLOT" || menu == "5") {
 
 			//Ausgabe der Aktiendaten
+			string Key = "";
+			cin >> Key;
+			Aktie * Gesucht;
+			try {
+				Gesucht = Namen->Suche(Key);
+				PlotAll(Gesucht);
+			}
+			catch (exception &e) {
+				try {
+					Gesucht = Kuerzel->Suche(Key);
+					PlotAll(Gesucht);
+
+				}
+				catch (exception &e) {
+					cout << e.what() << endl;
+				}
+			}
+			
+
 			
 			
 
@@ -265,31 +285,78 @@ bool Del(Hashtable<Aktie*>* namenalskey, Hashtable<Aktie*>* kuerzelalskey, std::
 }
 
 ///Funktion zeichnet in einerm Array die Schlusskurse der letzten 30 Tage.
-void PlotAll(std::string Namen, std::string Kuerzel, std::string wertpapiernummer)
+void PlotAll(Aktie * MeineAktie)
+
 {
 	using namespace std;
 
-	string Key = "";
-	cin >> Key;
-	Aktie * Gesucht;
-
-	try {
-		Gesucht = Namen->Suche(Key);
-		cout << "Name: " << Gesucht->GetName() << endl << "Kuerzel: " << Gesucht->GetKuerzel() << endl << "Wertpapiernummer: " << Gesucht->GetWPN() << endl;
-		cout << "Aktuellser Kurseintrag:" << Gesucht->AktuellsterKurseintrag() << endl;
-	}
-	catch (exception &e) {
-		try {
-			Gesucht = Kuerzel->Suche(Key);
-			cout << "Name: " << Gesucht->GetName() << endl << "Kuerzel: " << Gesucht->GetKuerzel() << endl << "Wertpapiernummer: " << Gesucht->GetWPN() << endl;
-			cout << "Aktuellser Kurseintrag:" << Gesucht->AktuellsterKurseintrag() << endl;
-		}
-		catch (exception &e) {
-			cout << e.what() << endl;
-		}
-	}
+	double close[30] = { 0 };
 
 	char test[11][30] = { '*' };
+
+
+	int a = 0;
+	
+	string AlleKursdaten = MeineAktie->AlleKurseintraege();
+	
+	stringstream str(AlleKursdaten);
+
+	string line = "";
+
+	string temp2 = "";
+
+
+	while (getline(str, line, '\n'))
+	{
+
+		stringstream temp1(line);
+
+		for (int i = 0; i <= 4; i++)
+		{
+			getline(temp1, temp2, ';');
+		}
+
+		close[a] = stod(temp2);
+		
+		a++;
+	}
+
+	double min = close[0];
+	double max = close[0];
+	double diff = 0;
+
+	for (int i = 1; i < 30; i++)
+	{
+		if (close[i] > max)
+		{
+			max = close[i];
+		}
+		else if (close[i] < min && close[i] != 0)
+		{
+			min = close[i];
+		}
+	}
+
+	diff = max - min;
+
+	cout << diff << " " << max << " " << min << " " << endl;
+	double c = 0;
+
+	for (int i = 0; i < 30; i++)
+	{
+		if (close[i] > 0)
+		{
+			c = (close[i] - min) / diff;
+			close[i] = c;
+		}
+		else
+		{
+			close[i] = 0;
+		}
+		
+	}
+
+	
 
 	std::cout << "Schlusskurse der letzten 30 Tage: " << std::endl;
 	std::cout << std::endl;
@@ -297,6 +364,8 @@ void PlotAll(std::string Namen, std::string Kuerzel, std::string wertpapiernumme
 	///Initialisiert das char Array mit Sternen und fügt am linken und unteren Rand Linien für die Achsen inklusive Bezeichnungen hinzu!
 	///Skalierung wurde mit 10 zu 30 gewählt da man nur die letzten 30 Schlussdaten ausgeben muss und diese sich in einem Bereich von 0-100 bewegen. (Kursdaten/10)
 
+	///Initialisiert Array mit Sternen (blank-Canvas)
+	///No functional stuff done here 
 	for (int i = 0; i <= 10; i++)
 	{
 		for (int j = 0; j < 30; j++)
@@ -304,11 +373,22 @@ void PlotAll(std::string Namen, std::string Kuerzel, std::string wertpapiernumme
 			test[i][j] = '*';
 			test[10][j] = '-';
 			test[i][0] = '|';
+		}
+	}
+
+	for (int i = 0; i < 30; i++)
+	{
+		test[10-(int)round(close[i]*10)][i] = '#';
+	}
+
+	for (int i = 0; i <= 10; i++)
+	{
+		for (int j = 0; j < 30; j++)
+		{
 			std::cout << test[i][j];
 		}
 		std::cout << std::endl;
 	}
-
 }
 
 

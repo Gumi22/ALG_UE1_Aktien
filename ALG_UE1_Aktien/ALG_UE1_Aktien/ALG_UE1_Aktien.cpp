@@ -13,7 +13,7 @@
 #define hashtablesize 1999
 bool Add(Hashtable<Aktie*>*, Hashtable<Aktie*>*, std::string, std::string, std::string);
 bool Del(Hashtable<Aktie*>*, Hashtable<Aktie*>*, std::string);
-void PlotAll();
+void PlotAll(std::string, std::string, std::string);
 
 int main()
 {
@@ -152,7 +152,7 @@ int main()
 		else if (menu == "PLOT" || menu == "5") {
 
 			//Ausgabe der Aktiendaten
-			PlotAll();
+			
 			
 
 		}
@@ -265,7 +265,7 @@ bool Del(Hashtable<Aktie*>* namenalskey, Hashtable<Aktie*>* kuerzelalskey, std::
 }
 
 ///Funktion zeichnet in einerm Array die Schlusskurse der letzten 30 Tage.
-void PlotAll()
+void PlotAll(std::string Namen, std::string Kuerzel, std::string wertpapiernummer)
 {
 	using namespace std;
 
@@ -289,10 +289,6 @@ void PlotAll()
 		}
 	}
 
-}
-
-	
-
 	char test[11][30] = { '*' };
 
 	std::cout << "Schlusskurse der letzten 30 Tage: " << std::endl;
@@ -312,7 +308,7 @@ void PlotAll()
 		}
 		std::cout << std::endl;
 	}
-	return;
+
 }
 
 

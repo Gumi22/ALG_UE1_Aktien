@@ -13,6 +13,7 @@
 #define hashtablesize 1999
 bool Add(Hashtable<Aktie*>*, Hashtable<Aktie*>*, std::string, std::string, std::string);
 bool Del(Hashtable<Aktie*>*, Hashtable<Aktie*>*, std::string);
+void PlotAll();
 
 int main()
 {
@@ -147,6 +148,7 @@ int main()
 		else if (menu == "PLOT" || menu == "5") {
 
 			//Ausgabe der Aktiendaten
+			PlotAll();
 			cout << Namen->Suche("t")->AlleKurseintraege() << endl;
 
 		}
@@ -256,6 +258,34 @@ bool Del(Hashtable<Aktie*>* namenalskey, Hashtable<Aktie*>* kuerzelalskey, std::
 		std::cout << e.what() << std::endl;
 	}
 	return true;
+}
+///Funktion zeichnet in einerm Array die Schlusskurse der letzten 30 Tage.
+void PlotAll()
+{
+	char test[10][30] = { '*' };
+
+	std::cout << "Schlusskurse der letzten 30 Tage: " << std::endl;
+	std::cout << std::endl;
+	
+	///Initialisiert das char Array mit Sternen und fügt am linken und unteren Rand Linien für die Achsen inklusive Bezeichnungen hinzu!
+	///Skalierung wurde mit 10 zu 30 gewählt da man nur die letzten 30 Schlussdaten ausgeben muss und diese sich in einem Bereich von 0-100 bewegen. (Kursdaten/10)
+
+	for (int i = 0; i <= 10; i++)
+	{
+		for (int j = 0; j <= 30; j++)
+		{
+			test[i][j] = '*';
+			test[10][j] = { '-' };
+			test[i][0] = { '|' };
+			std::cout << test[i][j];
+		}
+		std::cout << std::endl;
+	}
+
+
+
+
+
 }
 
 

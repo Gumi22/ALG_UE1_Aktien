@@ -4,12 +4,99 @@
 #include <stdexcept>
 #include <math.h>
 
-#include <iostream> //später weg
-#include <type_traits> //später weg 
+#include <iostream> //später weg, Benötigt für Testfunktionen
+#include <ctime> //Benötigt für Testfunktionen
 
 template <class Type> class Hashtable
 {
 	public:
+		///* Testfunktion, um bestimmte Sachen zu messen:
+		void Test01() {
+			std::clock_t start0;
+			std::clock_t start1;
+			std::clock_t start2;
+			std::clock_t start3;
+			std::clock_t start4;
+			int AnzahlDerTests = 1999;
+			Aktie* Dummy = new Aktie("t", "t", "1");
+			double duration;
+			static const char alphanum[] =
+				"0123456789"
+				"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				"abcdefghijklmnopqrstuvwxyz";
+
+			//Messen der Zeit für AnzahlDerTests hashes eines strings mit 4 Länge:
+			start1 = std::clock();
+			for (int i = 0; i < AnzahlDerTests; i++) {
+				hash("test");
+			}
+			duration = (std::clock() - start1) / (double)CLOCKS_PER_SEC;
+			std::cout << "4 Laenge hashed: " << duration << "Sekunden \n";
+
+			//Messen der Zeit für AnzahlDerTests hashes eines strings mit 30 Länge:
+			start2 = std::clock();
+			for (int i = 0; i < AnzahlDerTests; i++) {
+				hash("1234567890qwertzuioplkjhgfdsay");
+			}
+			duration = (std::clock() - start2) / (double)CLOCKS_PER_SEC;
+			std::cout << "30 Laenge hashed: " << duration << "Sekunden \n";
+
+			//Messen der Zeit für AnzahlDerTests inserts eines strings mit 4 Länge:
+			std::string seed1 = "test";
+			std::string* keys1 = new std::string[AnzahlDerTests];
+			for (int y = 0; y < AnzahlDerTests; y++) {
+				for (int i = 0; i < 4; ++i) {
+					seed1[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+				}
+				seed1[4] = 0;
+				keys1[y] = seed1;
+			}
+			start3 = std::clock();
+			for (int i = 0; i < AnzahlDerTests; i++) {
+				Add(Dummy, keys1[i]);
+			}
+			duration = (std::clock() - start3) / (double)CLOCKS_PER_SEC;
+			std::cout << "4 Laenge insert: " << duration << "Sekunden \n";
+			start3 = std::clock();
+			for (int i = 0; i < AnzahlDerTests; i++) {
+				try {
+					Remove(keys1[i]);
+				}
+				catch(std::exception){
+					//nothinge
+				}
+			}
+			duration = (std::clock() - start3) / (double)CLOCKS_PER_SEC;
+			std::cout << "4 Laenge delete: " << duration << "Sekunden \n";
+			//Messen der Zeit für AnzahlDerTests inserts eines strings mit 30 Länge:
+			std::string seed2 = "1234567890qwertzuioplkjhgfdsay";
+			std::string* keys2 = new std::string[AnzahlDerTests];
+			for (int y = 0; y < AnzahlDerTests; y++) {
+				for (int i = 0; i < 30; ++i) {
+					seed2[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+				}
+				seed2[30] = 0;
+				keys2[y] = seed2;
+			}
+			start4 = std::clock();
+			for (int i = 0; i < AnzahlDerTests; i++) {
+				Add(Dummy, keys2[i]);
+			}
+			duration = (std::clock() - start4) / (double)CLOCKS_PER_SEC;
+			std::cout << "30 Laenge insert: " << duration << "Sekunden \n";
+			start4 = std::clock();
+			for (int i = 0; i < AnzahlDerTests; i++) {
+				try{
+				Remove(keys2[i]);
+				}
+				catch (std::exception) {
+					//nothing
+				}
+			}
+			duration = (std::clock() - start4) / (double)CLOCKS_PER_SEC;
+			std::cout << "30 Laenge delete: " << duration << "Sekunden \n";
+		}
+		//*/
 
 		//Constructor der einen Hashtable mit einer bestimmten Größe anlegt
 		Hashtable(int size) {

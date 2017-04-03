@@ -44,7 +44,11 @@ int main()
 		cin >> menu;
 
 		//ToDo: Wenn das Kürzel einer Aktie gleich dem Namen einer anderen Aktie ist, kann man nie nach dem Kürzel suchen, da immer der Name der Aktie zuerst gesucht wird.
-
+		///* Testfunktionen:
+		if (menu == "0") {
+			//Tests hier bitte:
+			Namen->Test01();
+		} //*/
 		if (menu == "ADD" || menu == "1") {
 			AenderungenVorhanden = true;
 			string n, k, wpn;

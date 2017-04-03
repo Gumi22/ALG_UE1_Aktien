@@ -153,7 +153,7 @@ int main()
 
 			//Ausgabe der Aktiendaten
 			PlotAll();
-			cout << Namen->Suche("t")->AlleKurseintraege() << endl;
+			
 
 		}
 		else if (menu == "SAVE" || menu == "6") {
@@ -263,10 +263,37 @@ bool Del(Hashtable<Aktie*>* namenalskey, Hashtable<Aktie*>* kuerzelalskey, std::
 	}
 	return true;
 }
+
 ///Funktion zeichnet in einerm Array die Schlusskurse der letzten 30 Tage.
 void PlotAll()
 {
-	char test[10][30] = { '*' };
+	using namespace std;
+
+	string Key = "";
+	cin >> Key;
+	Aktie * Gesucht;
+
+	try {
+		Gesucht = Namen->Suche(Key);
+		cout << "Name: " << Gesucht->GetName() << endl << "Kuerzel: " << Gesucht->GetKuerzel() << endl << "Wertpapiernummer: " << Gesucht->GetWPN() << endl;
+		cout << "Aktuellser Kurseintrag:" << Gesucht->AktuellsterKurseintrag() << endl;
+	}
+	catch (exception &e) {
+		try {
+			Gesucht = Kuerzel->Suche(Key);
+			cout << "Name: " << Gesucht->GetName() << endl << "Kuerzel: " << Gesucht->GetKuerzel() << endl << "Wertpapiernummer: " << Gesucht->GetWPN() << endl;
+			cout << "Aktuellser Kurseintrag:" << Gesucht->AktuellsterKurseintrag() << endl;
+		}
+		catch (exception &e) {
+			cout << e.what() << endl;
+		}
+	}
+
+}
+
+	
+
+	char test[11][30] = { '*' };
 
 	std::cout << "Schlusskurse der letzten 30 Tage: " << std::endl;
 	std::cout << std::endl;
@@ -276,20 +303,16 @@ void PlotAll()
 
 	for (int i = 0; i <= 10; i++)
 	{
-		for (int j = 0; j <= 30; j++)
+		for (int j = 0; j < 30; j++)
 		{
 			test[i][j] = '*';
-			test[10][j] = { '-' };
-			test[i][0] = { '|' };
+			test[10][j] = '-';
+			test[i][0] = '|';
 			std::cout << test[i][j];
 		}
 		std::cout << std::endl;
 	}
-
-
-
-
-
+	return;
 }
 
 

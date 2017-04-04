@@ -488,16 +488,6 @@ void Load(std::string name, Hashtable<Aktie*>* hash_name, Hashtable<Aktie*>* has
 		}
 	}
 
-
-	
-
-
-
-
-
-
-
-
 }
 
 

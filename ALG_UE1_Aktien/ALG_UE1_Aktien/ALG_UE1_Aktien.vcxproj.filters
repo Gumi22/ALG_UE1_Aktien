@@ -36,6 +36,9 @@
     <ClInclude Include="Kursdaten.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="spline.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -19,13 +19,13 @@ Datum::Datum(std::string datum) {
 	ss >> Jahr; //Jahr in Jahr speichern usw.
 	ss >> Monat;
 	ss >> Tag;
-	std::cout << "Constructing Datum" << std::endl;
+	//std::cout << "Constructing Datum" << std::endl;
 }
 
 //Destructor
 Datum::~Datum()
 {
-	std::cout << "Destructing Datum" << std::endl;
+	//std::cout << "Destructing Datum" << std::endl;
 }
 
 std::string Datum::getDatum() const {

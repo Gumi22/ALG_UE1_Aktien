@@ -17,7 +17,7 @@
 //Constructor
 Aktie::Aktie(std::string name, std::string kuerzel, std::string wertpapiernummer)
 {
-	std::cout << "Constructing aktie" << std::endl;
+	//std::cout << "Constructing aktie" << std::endl;
 
 	Name = name;
 	Kuerzel = kuerzel;
@@ -28,7 +28,7 @@ Aktie::Aktie(std::string name, std::string kuerzel, std::string wertpapiernummer
 //Copy-Constructor
 Aktie::Aktie(const Aktie& other) {
 
-	std::cout << "Copy-Constructing aktie" << std::endl;
+	//std::cout << "Copy-Constructing aktie" << std::endl;
 
 	Name = other.Name;
 	Kuerzel = other.Kuerzel;
@@ -39,7 +39,7 @@ Aktie::Aktie(const Aktie& other) {
 //Assignment operator
 Aktie & Aktie :: operator = (const Aktie& that) {
 
-	std::cout << "aktie = aktie" << std::endl;
+	//std::cout << "aktie = aktie" << std::endl;
 
 	Name = that.Name;
 	Kuerzel = that.Kuerzel;
@@ -51,7 +51,7 @@ Aktie & Aktie :: operator = (const Aktie& that) {
 //Destructor
 Aktie::~Aktie()
 {
-	std::cout << "Destructing aktie" << std::endl;
+	//std::cout << "Destructing aktie" << std::endl;
 	delete Kurse;
 }
 

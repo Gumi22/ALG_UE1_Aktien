@@ -9,7 +9,7 @@
 Kursdaten::Kursdaten(int size)
 {
 
-	std::cout << "Constructing Kursdaten" << std::endl;
+	//std::cout << "Constructing Kursdaten" << std::endl;
 
 	AktuellsteDaten = new Aktienkurs[size];
 	Size = size;
@@ -21,7 +21,7 @@ Kursdaten::Kursdaten(int size)
 //Copy-Constructor:
 Kursdaten::Kursdaten(const Kursdaten& other) {
 
-	std::cout << "Constructing Kursdaten" << std::endl;
+	//std::cout << "Copy Constructing Kursdaten" << std::endl;
 
 	Size = other.Size; //Kopiere die Member
 	Start = other.Start;
@@ -41,7 +41,7 @@ Kursdaten::Kursdaten(const Kursdaten& other) {
 //Destructor
 Kursdaten::~Kursdaten()
 {
-	std::cout << "Destructing Kursdaten" << std::endl;
+	//std::cout << "Destructing Kursdaten" << std::endl;
 	//Löschen aller Datumsklassen im Struct
 	for (int i = 0; i < Count; i++) {
 		delete AktuellsteDaten[(Start+i)%Size].Datum;

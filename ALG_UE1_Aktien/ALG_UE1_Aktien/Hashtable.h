@@ -17,7 +17,7 @@ template <class Type> class Hashtable
 			std::clock_t start2;
 			std::clock_t start3;
 			std::clock_t start4;
-			int AnzahlDerTests = 1999;
+			int AnzahlDerTests = 99991;
 			Aktie* Dummy = new Aktie("t", "t", "1");
 			double duration;
 			static const char alphanum[] =
@@ -107,7 +107,7 @@ template <class Type> class Hashtable
 		//Constructor der einen Hashtable mit einer bestimmten Größe anlegt
 		Hashtable(int size) {
 
-			std::cout << "Constructing Hashtable" << std::endl;
+			//std::cout << "Constructing Hashtable" << std::endl;
 
 			TableSize = size;
 			DataCount = 0;
@@ -131,7 +131,7 @@ template <class Type> class Hashtable
 		//Copy Constructor:
 		Hashtable(const Hashtable& other) {
 
-			std::cout << "Copy Constructing Hashtable" << std::endl;
+			//std::cout << "Copy Constructing Hashtable" << std::endl;
 
 			//Diese Werte kopieren
 			TableSize = other.TableSize;
@@ -159,7 +159,7 @@ template <class Type> class Hashtable
 		//Destructor
 		virtual ~Hashtable<Type>() {
 
-			std::cout << "Destructing Hashtable" << std::endl;
+			//std::cout << "Destructing Hashtable" << std::endl;
 
 			delete[] Key;
 			delete[] TimesJumped;

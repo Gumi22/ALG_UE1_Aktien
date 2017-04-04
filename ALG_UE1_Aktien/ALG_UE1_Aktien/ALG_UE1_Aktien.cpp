@@ -9,12 +9,12 @@
 #include <math.h>//Mathematics (so magic) --> just for rounding doubles ;)
 #include "Hashtable.h"
 #include "Aktie.h"
+#include "spline.h" //Wird fürs Plot benutzt
 
-
-#define hashtablesize 1999
+#define hashtablesize 99991
 bool Add(Hashtable<Aktie*>*, Hashtable<Aktie*>*, std::string, std::string, std::string);
 bool Del(Hashtable<Aktie*>*, Hashtable<Aktie*>*, std::string);
-void PlotAll(Aktie *);
+void PlotAll(Aktie *, int, int);
 void Load(std::string, Hashtable<Aktie*>*, Hashtable<Aktie*>*);
 
 
@@ -40,7 +40,7 @@ int main()
 		cout << "2 - DEL [Aktienname|Aktienkuerzel]: Aktie wird geloescht." << endl;
 		cout << "3 - IMPORT [Aktienname|Aktienkuerzel] Dateiname: Kurswerte fuer die angegebene Aktie werden aus einer csv Datei importiert." << endl;
 		cout << "4 - SEARCH [Aktienname|Aktienkuerzel]: Programm gibt den aktuellsten Kurseintrag der gesuchten Aktie aus." << endl;
-		cout << "5 - PLOT [Aktienname|Aktienkuerzel]: Die Schlusskurse der letzten 30 Tage einer Aktie werden als ASCII Grafik ausgegeben." << endl;
+		cout << "5 - PLOT [Aktienname|Aktienkuerzel] Breite Hoehe: Die Schlusskurse einer Aktie werden als ASCII Grafik ausgegeben." << endl;
 		cout << "6 - SAVE Dateiname: Programm speichert die Hashtabelle in eine Datei ab." << endl;
 		cout << "7 - LOAD Dateiname: Programm laedt die Hashtabelle aus einer Datei." << endl;
 		cout << "8 - QUIT: Programm wird beendet." << endl;
@@ -156,17 +156,20 @@ int main()
 
 			//Ausgabe der Aktiendaten
 			string Key = "";
-			cin >> Key;
+			string Breite = "";
+			string Hoehe = "";
+			cin >> Key >> Breite >> Hoehe;
 			Aktie * Gesucht;
 			try {
 				Gesucht = Namen->Suche(Key);
-				PlotAll(Gesucht);
+				cout << "Name: " << Gesucht->GetName() << endl << "Kuerzel: " << Gesucht->GetKuerzel() << endl << "Wertpapiernummer: " << Gesucht->GetWPN() << endl;
+				PlotAll(Gesucht, stoi(Breite), stoi(Hoehe));
 			}
 			catch (exception &e) {
 				try {
 					Gesucht = Kuerzel->Suche(Key);
-					PlotAll(Gesucht);
-
+					cout << "Name: " << Gesucht->GetName() << endl << "Kuerzel: " << Gesucht->GetKuerzel() << endl << "Wertpapiernummer: " << Gesucht->GetWPN() << endl;
+					PlotAll(Gesucht, stoi(Breite), stoi(Hoehe));
 				}
 				catch (exception &e) {
 					cout << e.what() << endl;
@@ -220,9 +223,13 @@ int main()
 				cout << "Beim Beenden werden Ihre Aenderungen verworfen. Beenden: [1|J] Abbrechen: [2|N]";
 				char Antwort;
 				cin >> Antwort;
-				if (Antwort == 'J' || Antwort == '1') { return 0; }
+				if (Antwort == 'J' || Antwort == '1') {
+					//ToDo: Lösche Hashtables
+					return 0; 
+				}
 			}
 			else {
+				//ToDo: Lösche Hashtables
 				return 0;
 			}
 		}
@@ -312,14 +319,34 @@ bool Del(Hashtable<Aktie*>* namenalskey, Hashtable<Aktie*>* kuerzelalskey, std::
 }
 
 ///Funktion zeichnet in einerm Array die Schlusskurse der letzten 30 Tage.
-void PlotAll(Aktie * MeineAktie)
+void PlotAll(Aktie * MeineAktie, int Width, int Height)
 
 {
+	//Höhe und Breite auf mindestgrößen stellen
+	if (Width < 30) {
+		Width = 30;
+	}
+	if (Height < 10) {
+		Height = 10;
+	}
+
 	using namespace std;
 
 	double close[30] = { 0 };
 
-	char test[11][30] = { '*' };
+	//Erzeugen eines dynamischen 2 dimensionalen Char[]
+	char** myGraph = new char*[Height];
+	for (int i = 0; i < Height; i++) {
+		myGraph[i] = new char[Width];
+		for (int j = 0; j < Width; j++) {
+			myGraph[i][j] = ' ';
+		}
+	}
+
+	//Erzeugen unseres Arrays, dass die Kurve enthält in der richtigen "Auflösung"
+	double* InterpolatedClose = new double[Width];
+
+	char test[11][30] = { ' ' };
 
 
 	int a = 0;
@@ -332,10 +359,11 @@ void PlotAll(Aktie * MeineAktie)
 
 	string temp2 = "";
 
+	int AnzahlKursdaten = 0;
 
 	while (getline(str, line, '\n'))
 	{
-
+		AnzahlKursdaten++;
 		stringstream temp1(line);
 
 		for (int i = 0; i <= 4; i++)
@@ -366,7 +394,7 @@ void PlotAll(Aktie * MeineAktie)
 
 	diff = max - min;
 
-	cout << diff << " " << max << " " << min << " " << endl;
+	//cout << diff << " " << max << " " << min << " " << endl;
 	double c = 0;
 
 	for (int i = 0; i < 30; i++)
@@ -383,8 +411,43 @@ void PlotAll(Aktie * MeineAktie)
 		
 	}
 
-	
+	//Erzeuge die Vektoren fürs "Interpolieren":
+	std::vector<double> X(AnzahlKursdaten), Y(AnzahlKursdaten);
+	for (int i = 0; i < AnzahlKursdaten; i++) {
+		X[i] = i;
+		Y[i] = close[i];
+	}
 
+	tk::spline s; //erzeuge Interpolationsfunktion
+	s.set_points(X, Y);    //Setze die Vektoren :D
+
+	double Scale = ((double)AnzahlKursdaten - 1) / ((double)Width - 1);
+	//Berechnen der Interpolationen aus dem close[] und schreiben der Daten in InterpolatedClose;
+	for (int i = 0; i < Width; i++) { //Berechne dir für jeden Punkt im Array InterpolatedClose die correspondierenden %
+		InterpolatedClose[i] = s(((double)i*Scale)); //Berechne dir den Punkt an dem wir die Höhe haben wollen.
+	}
+	cout << "Schlusskurse der letzten 30 Tage: " << endl;
+	//Ausgeben der Interpolierten Punkte;
+
+	for (int i = 0; i < Width; i++)
+	{
+		myGraph[Height-1 - (int)round(InterpolatedClose[i] * (Height-1))][i] = '#';
+	}
+
+
+
+	for (int i = 0; i < Height; i++)
+	{
+		for (int j = 0; j < Width; j++)
+		{
+			std::cout << myGraph[i][j];
+		}
+		std::cout << std::endl;
+	}
+
+	cout << endl;
+	
+	/*
 	std::cout << "Schlusskurse der letzten 30 Tage: " << std::endl;
 	std::cout << std::endl;
 	
@@ -416,6 +479,14 @@ void PlotAll(Aktie * MeineAktie)
 		}
 		std::cout << std::endl;
 	}
+	*/
+
+	//Löschen der Variablen
+	for (int i = 0; i < Height; i++) {
+		delete[] myGraph[i];
+	}
+	delete[] myGraph;
+	delete[] InterpolatedClose;
 }
 
 void Load(std::string name, Hashtable<Aktie*>* hash_name, Hashtable<Aktie*>* hash_kuerzel)
